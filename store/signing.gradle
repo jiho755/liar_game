@@ -1,0 +1,18 @@
+
+// ---- CI 서명 설정: .github/workflows/store.yml 이 android/app/build.gradle 끝에 덧붙입니다 ----
+// 키스토어 경로/비밀번호는 환경변수에서만 읽습니다 (파일에 저장되지 않음).
+android {
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("KEYSTORE_PATH"))
+            storePassword System.getenv("KEYSTORE_PASSWORD")
+            keyAlias System.getenv("KEY_ALIAS")
+            keyPassword System.getenv("KEY_PASSWORD")
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}

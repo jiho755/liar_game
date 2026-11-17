@@ -1,0 +1,177 @@
+name: Build Play Store AAB
+
+# 구글 플레이 스토어 제출용 빌드 (android.yml 의 디버그 APK 와는 별개)
+#  - 자동 업데이트 로더 제거 + 로컬 폰트 (store/prepare.sh)
+#  - 서명 시크릿(KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD)이 있으면 서명된 .aab,
+#    없으면 서명 안 된 .aab 를 만들고 로그에 경고만 남긴다.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'versionName (비우면 1.0.<run_number>)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  aab:
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: 성경 라이어
+      APP_ID: com.jiho755.bibleliar
+      TARGET_SDK: '36'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Compute version
+        id: ver
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version_name }}
+        run: |
+          set -euo pipefail
+          CODE="${{ github.run_number }}"
+          NAME=""
+          if [[ "${GITHUB_REF_TYPE:-}" == "tag" && "${GITHUB_REF_NAME:-}" == v* ]]; then
+            NAME="${GITHUB_REF_NAME#v}"
+          elif [[ -n "${INPUT_VERSION:-}" ]]; then
+            NAME="${INPUT_VERSION#v}"
+          fi
+          if [[ ! "$NAME" =~ ^[0-9A-Za-z][0-9A-Za-z._-]*$ ]]; then
+            [[ -n "$NAME" ]] && echo "::warning::versionName '$NAME' 형식이 이상해서 기본값을 사용합니다"
+            NAME="1.0.${CODE}"
+          fi
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "versionCode=$CODE versionName=$NAME"
+
+      - name: Prepare store www (loader 제거 + 로컬 폰트)
+        run: bash store/prepare.sh
+
+      - name: Generate Capacitor Android project
+        run: |
+          set -euo pipefail
+          mkdir app && cd app
+          npm init -y >/dev/null
+          npm i @capacitor/core@^8 @capacitor/cli@^8 @capacitor/android@^8
+          mkdir www && cp -r ../store/www/. www/
+          npx cap init "$APP_NAME" "$APP_ID" --web-dir www
+          npx cap add android
+          npm i -D @capacitor/assets
+          npx @capacitor/assets generate --android --assetPath ../assets
+          npx cap sync android
+          # kotlin 중복 클래스 충돌 회피 (android.yml 과 동일)
+          printf "\ndependencies {\n    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')\n}\n" >> android/app/build.gradle
+          cat capacitor.config.json
+
+      - name: Set versionCode / versionName / targetSdk
+        working-directory: app/android
+        env:
+          VERSION_CODE: ${{ steps.ver.outputs.code }}
+          VERSION_NAME: ${{ steps.ver.outputs.name }}
+        run: |
+          set -euo pipefail
+          echo "--- before ---"
+          grep -nE "versionCode|versionName" app/build.gradle
+          grep -nE "(min|compile|target)SdkVersion" variables.gradle
+          sed -i -E "s/^([[:space:]]*)versionCode[[:space:]]+[0-9]+/\1versionCode ${VERSION_CODE}/" app/build.gradle
+          sed -i -E "s/^([[:space:]]*)versionName[[:space:]]+\"[^\"]*\"/\1versionName \"${VERSION_NAME}\"/" app/build.gradle
+          sed -i -E "s/^([[:space:]]*)targetSdkVersion[[:space:]]*=[[:space:]]*[0-9]+/\1targetSdkVersion = ${TARGET_SDK}/" variables.gradle
+          # compileSdk 는 targetSdk 이상이어야 함
+          CUR_COMPILE="$(grep -E "^[[:space:]]*compileSdkVersion" variables.gradle | grep -oE "[0-9]+" | head -1)"
+          if [ "${CUR_COMPILE:-0}" -lt "${TARGET_SDK}" ]; then
+            sed -i -E "s/^([[:space:]]*)compileSdkVersion[[:space:]]*=[[:space:]]*[0-9]+/\1compileSdkVersion = ${TARGET_SDK}/" variables.gradle
+          fi
+          echo "--- after ---"
+          grep -nE "versionCode|versionName" app/build.gradle
+          grep -nE "(min|compile|target)SdkVersion" variables.gradle
+          grep -qE "^[[:space:]]*versionCode ${VERSION_CODE}\$" app/build.gradle || { echo "versionCode 치환 실패" >&2; exit 1; }
+          grep -qE "^[[:space:]]*versionName \"${VERSION_NAME}\"\$" app/build.gradle || { echo "versionName 치환 실패" >&2; exit 1; }
+          grep -qE "^[[:space:]]*targetSdkVersion = ${TARGET_SDK}\$" variables.gradle || { echo "targetSdk 치환 실패" >&2; exit 1; }
+
+      - name: Configure release signing (if secrets exist)
+        id: sign
+        working-directory: app/android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "${KEYSTORE_BASE64:-}" ] && [ -n "${KEYSTORE_PASSWORD:-}" ] && [ -n "${KEY_ALIAS:-}" ] && [ -n "${KEY_PASSWORD:-}" ]; then
+            KS="$RUNNER_TEMP/upload.keystore"
+            echo "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > "$KS"
+            test -s "$KS" || { echo "::error::KEYSTORE_BASE64 디코딩 결과가 비어 있습니다"; exit 1; }
+            echo "KEYSTORE_PATH=$KS" >> "$GITHUB_ENV"
+            # 비밀번호는 파일에 쓰지 않고, 빌드 때 환경변수에서 읽도록 Groovy 블록만 추가
+            cat ../../store/signing.gradle >> app/build.gradle
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "서명 키스토어 준비 완료 -> 서명된 AAB 를 빌드합니다."
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::서명 시크릿(KEYSTORE_BASE64/KEYSTORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD)이 없어 서명되지 않은(UNSIGNED) AAB 를 빌드합니다. 플레이 스토어에 올리려면 store/KEYSTORE.md 를 참고해 시크릿을 등록하세요."
+          fi
+
+      - name: Build release AAB
+        working-directory: app/android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon
+          AAB="$(ls app/build/outputs/bundle/release/*.aab | head -1)"
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          if [ "${{ steps.sign.outputs.signed }}" = "true" ]; then
+            OUT="$GITHUB_WORKSPACE/out/bible-liar-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}-signed.aab"
+          else
+            OUT="$GITHUB_WORKSPACE/out/bible-liar-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}-UNSIGNED.aab"
+            echo "::warning::UNSIGNED AAB 입니다 (플레이 스토어 업로드 불가)."
+          fi
+          cp "$AAB" "$OUT"
+          ls -l "$GITHUB_WORKSPACE/out"
+          if [ -f app/build/outputs/mapping/release/mapping.txt ]; then
+            cp app/build/outputs/mapping/release/mapping.txt "$GITHUB_WORKSPACE/out/mapping.txt"
+          else
+            echo "proguard mapping.txt 없음 (minifyEnabled false 이므로 정상)"
+          fi
+
+      - name: Verify AAB signature
+        if: steps.sign.outputs.signed == 'true'
+        run: |
+          set -euo pipefail
+          for f in out/*-signed.aab; do
+            jarsigner -verify -strict "$f"
+            keytool -printcert -jarfile "$f" | grep -E "Owner|SHA256" || true
+          done
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: bible-liar-aab-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}
+          path: out/*.aab
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload proguard mapping
+        uses: actions/upload-artifact@v4
+        with:
+          name: proguard-mapping-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}
+          path: out/mapping.txt
+          retention-days: 30
+          if-no-files-found: ignore
