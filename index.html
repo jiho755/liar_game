@@ -110,6 +110,13 @@ details ol{margin:4px 0 0;padding-left:22px;font-size:17px}
 #landing .lsheep{animation:lfIn 1.1s ease-out .7s backwards}
 #landing .lb{animation:lfBtn .8s ease-out 1.5s backwards}
 @media (prefers-reduced-motion:reduce){#landing .lt,#landing .lsheep,#landing .lb{animation:none}}
+#sndbtn{position:fixed;z-index:9;top:calc(env(safe-area-inset-top) + 8px);right:calc(env(safe-area-inset-right) + 8px);width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border-radius:50%;background:rgba(74,106,52,.55);border:1.5px solid rgba(255,249,236,.35);display:flex;align-items:center;justify-content:center}
+#sndbtn svg{display:block}
+#sndbtn:active{transform:scale(.94)}
+#sndbtn.off .w{display:none}#sndbtn:not(.off) .x{display:none}
+.topbar{padding-right:52px}
+@media (max-width:380px){h1{padding:0 48px}}
+@media (max-width:340px){h1{font-size:24px}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
@@ -117,6 +124,299 @@ details ol{margin:4px 0 0;padding-left:22px;font-size:17px}
 <body>
 <div id="bg" aria-hidden="true"></div>
 <div id="app"></div>
+<button id="sndbtn" type="button" aria-label="소리 켜기/끄기" aria-pressed="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="#FFF9EC"/><g class="w" fill="none" stroke="#FFF9EC" stroke-width="1.9" stroke-linecap="round"><path d="M15.5 9.2a4.2 4.2 0 0 1 0 5.6"/><path d="M18 6.8a7.6 7.6 0 0 1 0 10.4"/></g><g class="x" fill="none" stroke="#FFF9EC" stroke-width="1.9" stroke-linecap="round"><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></svg></button>
+<script>
+/* 소리: Web Audio API로만 생성 (오디오 파일/외부 요청 없음) */
+(function(){
+'use strict';
+var KEY='liarSound',BPM=72,EIGHTH=60/BPM/2,AHEAD=0.2,TICK=25,MASTER=0.8,noop=function(){};
+var ctx=null,G=null,muted=false,sceneName='landing',curTarget=null,timer=0,stopTO=0,step=0,origin=0,hidTO=0;
+try{muted=localStorage.getItem(KEY)==='off';}catch(e){}
+
+var mtof=function(m){return 440*Math.pow(2,(m-69)/12);};
+function hash(a,b,c){var h=Math.imul(a+1,374761393)^Math.imul(b+7,668265263)^Math.imul(c+13,1274126177);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296;}
+
+/* ---------- 그래프: (bus)->master->compressor->out. ctx는 실시간/오프라인 모두 가능 ---------- */
+function makeImpulse(c,secs,decay){
+  var sr=c.sampleRate,len=Math.floor(sr*secs),buf=c.createBuffer(2,len,sr),seed=12345;
+  for(var ch=0;ch<2;ch++){var d=buf.getChannelData(ch),lp=0;
+    for(var i=0;i<len;i++){seed=(seed*1664525+1013904223)>>>0;var n=seed/2147483648-1;lp+=(n-lp)*0.3;
+      d[i]=lp*Math.pow(1-i/len,decay)*(i<sr*0.012?i/(sr*0.012):1);}
+  }
+  return buf;
+}
+function buildGraph(c){
+  var g={};
+  g.master=c.createGain();g.master.gain.value=MASTER;
+  g.comp=c.createDynamicsCompressor();
+  g.comp.threshold.value=-16;g.comp.knee.value=12;g.comp.ratio.value=6;g.comp.attack.value=0.004;g.comp.release.value=0.2;
+  g.master.connect(g.comp);g.comp.connect(c.destination);
+  var imp=makeImpulse(c,1.6,3);
+  function bus(trim){
+    var b={};b.out=c.createGain();var tr=c.createGain();tr.gain.value=trim;b.out.connect(tr);tr.connect(g.master);
+    b.dry=c.createGain();b.dry.connect(b.out);
+    b.send=c.createGain();b.send.gain.value=0.5;
+    var cv=c.createConvolver();cv.buffer=imp;var ret=c.createGain();ret.gain.value=0.9;
+    b.send.connect(cv);cv.connect(ret);ret.connect(b.out);
+    return b;
+  }
+  g.mus=bus(0.42);g.mus.out.gain.value=0;g.music=g.mus.out;
+  g.sfxb=bus(1);g.sfxb.out.gain.value=1;
+  return g;
+}
+
+/* ---------- 음색 ---------- */
+/* o: f,t,dur,vel,att,parts[{m,g,type,d,k}],lp */
+function tone(c,bus,wet,o){
+  var env=c.createGain(),t=o.t,end=t+o.dur+0.05;
+  env.gain.setValueAtTime(0.0001,t);
+  env.gain.exponentialRampToValueAtTime(o.vel,t+(o.att||0.004));
+  env.gain.exponentialRampToValueAtTime(0.0001,t+o.dur);
+  o.parts.forEach(function(p){
+    var osc=c.createOscillator(),pg=c.createGain();
+    osc.type=p.type||'sine';osc.frequency.value=o.f*(p.m||1);osc.detune.value=p.d||0;
+    pg.gain.setValueAtTime(p.g,t);
+    if(p.k)pg.gain.exponentialRampToValueAtTime(0.0001,t+o.dur*p.k);
+    osc.connect(pg);pg.connect(env);osc.start(t);osc.stop(end);
+  });
+  var out=env;
+  if(o.lp){var f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=o.lp;env.connect(f);out=f;}
+  out.connect(bus.dry);if(wet)out.connect(bus.send);
+}
+function musicBox(c,bus,wet,f,t,dur,vel,sd){
+  var dt=(sd-0.5)*8;
+  tone(c,bus,wet,{f:f,t:t,dur:dur,vel:vel,att:0.004,parts:[
+    {m:1,g:0.7,type:'sine',d:dt-3},{m:1,g:0.5,type:'sine',d:dt+4},
+    {m:2,g:0.22,type:'triangle',k:0.5},{m:5.02,g:0.04,type:'sine',k:0.12}]});
+}
+function felt(c,bus,wet,f,t,dur,vel,sd){
+  tone(c,bus,wet,{f:f,t:t,dur:dur,vel:vel,att:0.014,lp:1300,parts:[
+    {m:1,g:1,type:'sine',d:(sd-0.5)*6},{m:1,g:0.35,type:'triangle',d:5,k:0.6},{m:2,g:0.08,type:'sine',k:0.25}]});
+}
+
+/* ---------- BGM: C장조 72BPM, 16마디 (I vi IV V | I iii IV V | I vi ii V | IV V I V) ---------- */
+var PROG=[[0,0],[9,1],[5,0],[7,0],[0,0],[4,1],[5,0],[7,0],[0,0],[9,1],[2,1],[7,0],[5,0],[7,0],[0,0],[7,0]];
+var PENT=[67,69,72,74,76,79,81,84];
+var MEL=[
+  [[0,76,3],[3,74,1],[4,72,4]],
+  [[2,69,2],[4,72,2],[6,74,2]],
+  [[0,72,3],[3,69,1],[4,72,4]],
+  [[0,74,4],[4,67,4]],
+  [[0,76,2],[2,79,2],[4,76,4]],
+  [[0,79,3],[3,76,1],[4,74,4]],
+  [[0,72,2],[2,74,2],[4,72,2],[6,69,2]],
+  [[0,74,6]],
+  [[0,72,2],[2,76,2],[4,79,4]],
+  [[0,81,3],[3,79,1],[4,76,4]],
+  [[0,74,3],[3,72,1],[4,69,4]],
+  [[0,67,2],[2,74,2],[4,74,4]],
+  [[0,76,2],[2,74,2],[4,72,4]],
+  [[0,74,2],[2,72,2],[4,74,4]],
+  [[0,72,6]],
+  [[2,74,2],[4,67,4]]
+];
+var ARP=[[0,1,2,3,2,1,2,1],[0,2,1,3,2,3,1,2],[0,1,2,1,3,2,1,2],[0,2,3,2,1,2,3,1]];
+function bgmStep(c,g,s,t){
+  var bar=Math.floor(s/8)%16,e=s%8,pass=Math.floor(s/128),ch=PROG[bar],pc=ch[0],mn=ch[1],b=g.mus;
+  var bassRoot=48+pc-(pc>6?12:0),r4=60+pc-(pc>7?12:0);
+  var tones=[r4,r4+(mn?3:4),r4+7,r4+12];
+  if(e===0){
+    felt(c,b,true,mtof(bassRoot),t,2.7,0.10,hash(pass,bar,1));
+    for(var i=0;i<3;i++)felt(c,b,true,mtof(tones[i]),t+i*0.018,3.0,0.034,hash(pass,bar,2+i));
+  }
+  if(e===4)felt(c,b,true,mtof(bassRoot+(bar%4===3?0:7)),t,1.5,0.055,hash(pass,bar,9));
+  var hv=hash(pass,bar,e);
+  if(hv>0.12){
+    var v=(e%4===0?0.036:0.026)*(0.85+0.3*hash(pass,bar,e+20));
+    musicBox(c,b,true,mtof(tones[ARP[pass%4][e]]),t,1.1,v,hash(pass,bar,e+40));
+  }
+  MEL[bar].forEach(function(n){
+    if(n[0]!==e)return;
+    var k=hash(pass,bar,n[0]+50);
+    if(pass>0&&k<0.1)return;
+    var m=n[1];
+    if(pass%2===1&&k>0.72){var ix=PENT.indexOf(m);if(ix>=0){ix+=(k>0.86?1:-1);if(ix>=0&&ix<PENT.length)m=PENT[ix];}}
+    musicBox(c,b,true,mtof(m),t,n[2]*EIGHTH*0.9+0.7,0.085,hash(pass,bar,n[0]+60));
+  });
+}
+
+/* ---------- 효과음 ---------- */
+var SFX={
+  tok:function(c,g,t,rate){
+    var f=640*(rate||1),o=c.createOscillator(),e=c.createGain(),lp=c.createBiquadFilter();
+    o.type='triangle';o.frequency.setValueAtTime(f*1.35,t);o.frequency.exponentialRampToValueAtTime(f,t+0.025);
+    e.gain.setValueAtTime(0.0001,t);e.gain.exponentialRampToValueAtTime(0.26,t+0.004);e.gain.exponentialRampToValueAtTime(0.0001,t+0.065);
+    lp.type='lowpass';lp.frequency.value=2600;
+    o.connect(e);e.connect(lp);lp.connect(g.sfxb.dry);o.start(t);o.stop(t+0.08);
+  },
+  chime:function(c,g,t){
+    [659.26,783.99,1046.5].forEach(function(f,i){musicBox(c,g.sfxb,true,f,t+i*0.105,0.95,0.2,0.5);});
+  },
+  bonk:function(c,g,t){
+    var o=c.createOscillator(),o2=c.createOscillator(),e=c.createGain(),lp=c.createBiquadFilter(),g2=c.createGain();
+    o.type='sine';o.frequency.setValueAtTime(215,t);o.frequency.exponentialRampToValueAtTime(98,t+0.22);
+    o2.type='triangle';o2.frequency.setValueAtTime(107,t);o2.frequency.exponentialRampToValueAtTime(49,t+0.22);g2.gain.value=0.3;
+    e.gain.setValueAtTime(0.0001,t);e.gain.exponentialRampToValueAtTime(0.42,t+0.007);e.gain.exponentialRampToValueAtTime(0.0001,t+0.36);
+    lp.type='lowpass';lp.frequency.value=650;
+    o.connect(e);o2.connect(g2);g2.connect(e);e.connect(lp);lp.connect(g.sfxb.dry);
+    o.start(t);o2.start(t);o.stop(t+0.4);o2.stop(t+0.4);
+  },
+  bleat:function(c,g,t,rate){
+    var r=rate||1,src=c.createOscillator(),lfo=c.createOscillator(),lg=c.createGain(),tg=c.createGain(),tl=c.createGain();
+    src.type='sawtooth';
+    var fq=src.frequency;
+    fq.setValueAtTime(400*r,t);fq.linearRampToValueAtTime(475*r,t+0.09);fq.linearRampToValueAtTime(425*r,t+0.17);
+    fq.linearRampToValueAtTime(510*r,t+0.25);fq.exponentialRampToValueAtTime(335*r,t+0.78);
+    lfo.type='sine';lfo.frequency.value=6.2;lg.gain.value=15;lfo.connect(lg);lg.connect(fq);   /* 피치 비브라토 ~6Hz */
+    tg.gain.value=0.86;tl.gain.value=0.14;lfo.connect(tl);tl.connect(tg.gain);                /* 얕은 떨림(진폭) */
+    var pre=c.createBiquadFilter();pre.type='lowpass';pre.frequency.value=3000;
+    function bp(q,pts,gain){
+      var f=c.createBiquadFilter(),o=c.createGain();f.type='bandpass';f.Q.value=q;
+      f.frequency.setValueAtTime(pts[0][1],t+pts[0][0]);
+      for(var i=1;i<pts.length;i++)f.frequency.linearRampToValueAtTime(pts[i][1],t+pts[i][0]);
+      o.gain.value=gain;pre.connect(f);f.connect(o);return o;
+    }
+    var f1=bp(6,[[0,300],[0.12,540],[0.2,480],[0.28,650],[0.8,780]],1.0);   /* ㅁ→ㅔ→ㅐ 포먼트 */
+    var f2=bp(8,[[0,1100],[0.12,2000],[0.2,1800],[0.28,1750],[0.8,1400]],0.7);
+    var env=c.createGain();
+    env.gain.setValueAtTime(0.0001,t);env.gain.exponentialRampToValueAtTime(1.0,t+0.05);
+    env.gain.exponentialRampToValueAtTime(0.5,t+0.15);env.gain.exponentialRampToValueAtTime(1.0,t+0.23);
+    env.gain.linearRampToValueAtTime(0.85,t+0.62);env.gain.exponentialRampToValueAtTime(0.0001,t+0.86);
+    var out=c.createGain();out.gain.value=0.62;
+    src.connect(pre);f1.connect(tg);f2.connect(tg);tg.connect(env);env.connect(out);
+    out.connect(g.sfxb.dry);out.connect(g.sfxb.send);
+    src.start(t);lfo.start(t);src.stop(t+0.9);lfo.stop(t+0.9);
+  },
+  tada:function(c,g,t){
+    var b=g.sfxb;
+    musicBox(c,b,true,523.25,t,0.3,0.2,0.4);
+    [523.25,659.26,783.99,1046.5].forEach(function(f,i){
+      musicBox(c,b,true,f,t+0.15,1.3,0.13,0.5);
+      tone(c,b,true,{f:f,t:t+0.15,dur:0.9,vel:0.03,att:0.02,parts:[{m:1,g:1,type:'triangle'}],lp:2200});
+    });
+  }
+};
+var DUR={bgm:24,tok:0.2,chime:1.6,bonk:0.6,bleat:1.3,tada:2.0,mix:14};
+/* 오프라인 렌더(검증용): 동일한 그래프/신디사이저를 OfflineAudioContext로 */
+function renderOffline(kind,opts){
+  opts=opts||{};
+  var sr=opts.sampleRate||22050,secs=opts.seconds||DUR[kind]||2;
+  var Off=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  var oc=new Off(1,Math.ceil(sr*secs),sr),g=buildGraph(oc),t0=0.05;
+  g.music.gain.value=1;
+  if(kind==='bgm'||kind==='mix'){for(var s=0;s*EIGHTH<secs-0.2;s++)bgmStep(oc,g,s,t0+s*EIGHTH);}
+  if(kind==='mix'){
+    SFX.bleat(oc,g,2.0,1);SFX.tok(oc,g,2.3,1);SFX.chime(oc,g,5.0);SFX.tok(oc,g,5.05,1);SFX.tada(oc,g,7.0);
+    SFX.bonk(oc,g,9.0);SFX.tok(oc,g,9.02,1);SFX.bleat(oc,g,10.0,1);SFX.tada(oc,g,10.1);SFX.chime(oc,g,10.15);
+  }else if(SFX[kind])SFX[kind](oc,g,t0,1);
+  return oc.startRendering().then(function(b){return b.getChannelData(0);});
+}
+
+/* ---------- 런타임 ---------- */
+function ensure(){
+  if(ctx)return true;
+  var AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return false;
+  try{ctx=new AC();G=buildGraph(ctx);G.master.gain.value=muted?0:MASTER;}
+  catch(e){try{ctx&&ctx.close();}catch(_){}ctx=null;G=null;return false;}
+  return true;
+}
+function resume(){if(ctx&&ctx.state!=='running'&&!document.hidden){try{var p=ctx.resume();if(p&&p.catch)p.catch(noop);}catch(e){}}}
+function tick(){
+  if(!ctx)return;
+  var now=ctx.currentTime;
+  if(origin+step*EIGHTH<now-0.05)step=Math.ceil((now+0.02-origin)/EIGHTH);
+  var guard=0;
+  while(origin+step*EIGHTH<now+AHEAD&&guard++<16){bgmStep(ctx,G,step,origin+step*EIGHTH);step++;}
+}
+function startSched(){
+  if(timer||!ctx||muted||document.hidden)return;
+  step=Math.ceil(step/8)*8;origin=ctx.currentTime+0.08-step*EIGHTH;
+  tick();timer=setInterval(tick,TICK);
+}
+function stopSched(){if(timer){clearInterval(timer);timer=0;}}
+function levelFor(n){return n==='result'?0.5:(n==='play'||n==='guess')?0:1;}
+function applyScene(){
+  if(!ctx||!G||muted)return;
+  var tgt=levelFor(sceneName);
+  clearTimeout(stopTO);stopTO=0;
+  if(tgt>0)startSched();
+  if(tgt!==curTarget){
+    var p=G.music.gain,now=ctx.currentTime,from=curTarget===null?0:p.value;
+    curTarget=tgt;
+    p.cancelScheduledValues(now);p.setValueAtTime(from,now);p.linearRampToValueAtTime(tgt,now+(tgt===0?0.6:1.2));
+  }
+  if(tgt===0)stopTO=setTimeout(function(){stopTO=0;if(levelFor(sceneName)===0)stopSched();},800);
+}
+function unlock(){
+  try{
+    if(muted||!ensure())return;
+    resume();
+    if(curTarget===null)applyScene();
+  }catch(e){}
+}
+function scene(name){sceneName=name;try{applyScene();}catch(e){}}
+function playSfx(name,rate){
+  if(muted||!ctx||document.hidden)return;
+  try{resume();SFX[name](ctx,G,ctx.currentTime+0.012,rate);}catch(e){}
+}
+function btn(){return document.getElementById('sndbtn');}
+function paint(){var b=btn();if(!b)return;b.classList.toggle('off',muted);b.setAttribute('aria-pressed',muted?'false':'true');}
+function setMuted(m){
+  muted=!!m;
+  try{localStorage.setItem(KEY,muted?'off':'on');}catch(e){}
+  paint();
+  try{
+  if(muted){
+    stopSched();clearTimeout(stopTO);stopTO=0;curTarget=null;
+    if(ctx&&G){
+      var now=ctx.currentTime;G.master.gain.cancelScheduledValues(now);G.master.gain.setValueAtTime(G.master.gain.value,now);G.master.gain.linearRampToValueAtTime(0,now+0.03);
+      clearTimeout(hidTO);
+      hidTO=setTimeout(function(){
+        if(muted&&ctx){G.master.gain.cancelScheduledValues(0);G.master.gain.value=0;
+          if(ctx.state==='running'){try{ctx.suspend().catch(noop);}catch(e){}}}
+      },120);
+    }
+  }else{
+    if(!ensure())return;
+    clearTimeout(hidTO);
+    G.master.gain.cancelScheduledValues(0);G.master.gain.value=MASTER;
+    resume();applyScene();
+    API.sfx.tok();
+  }
+  }catch(e){}
+}
+var API={
+  start:unlock,scene:scene,setMuted:setMuted,isMuted:function(){return muted;},
+  sfx:{
+    tok:function(){playSfx('tok',1+(Math.random()-0.5)*0.06);},
+    chime:function(){playSfx('chime',1);},
+    bonk:function(){playSfx('bonk',1);},
+    bleat:function(){playSfx('bleat',1);},
+    tada:function(){playSfx('tada',1);}
+  },
+  info:function(){return {scene:sceneName,target:curTarget,gain:G?G.music.gain.value:null,master:G?G.master.gain.value:null,scheduler:!!timer,muted:muted,state:ctx?ctx.state:'none'};},
+  renderOffline:renderOffline
+};
+window.LiarAudio=API;
+
+/* 첫 제스처에서 컨텍스트 생성/재개 (iOS·Android WebView 자동재생 정책) + 버튼 탭 소리(이벤트 위임) */
+['pointerdown','touchend','click','keydown'].forEach(function(ev){document.addEventListener(ev,function(){if(!muted&&(!ctx||ctx.state!=='running'))unlock();},true);});
+document.addEventListener('click',function(e){
+  var b=e.target&&e.target.closest?e.target.closest('button,[role="button"]'):null;
+  if(!b||b.id==='sndbtn'||b.id==='rv'||b.classList.contains('mcbtn')||b.disabled)return;
+  API.sfx.tok();
+},true);
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){
+    stopSched();clearTimeout(stopTO);stopTO=0;
+    if(ctx&&ctx.state==='running'){try{ctx.suspend().catch(noop);}catch(e){}}
+  }else if(!muted&&ctx&&G){resume();curTarget=null;applyScene();}
+});
+var sb=btn();if(sb)sb.addEventListener('click',function(){setMuted(!muted);});
+paint();
+})();
+</script>
 <script>
 const WORDS = {
   "인물": [
@@ -381,6 +681,7 @@ const WORDS = {
 
 (function(){
 'use strict';
+const A=window.LiarAudio||{scene(){},start(){},sfx:{tok(){},chime(){},bonk(){},bleat(){},tada(){}}};
 const CATS=['전체',...Object.keys(WORDS)];
 const app=document.getElementById('app');
 let cfg={n:5,liars:1,cat:'전체',mode:'일반'};
@@ -430,7 +731,7 @@ function bindHome(){on('home',()=>dialog('게임을 중단하고 설정 화면�
 
 /* 1. setup */
 function setupScreen(){
-  g=null;
+  g=null;A.scene('setup');
   set(`
   <h1>📖 성경 라이어 게임</h1>
   <p class="sub">폰 한 대로 함께 즐기는 말씀 게임</p>
@@ -475,6 +776,7 @@ function setupScreen(){
 
 /* 3. role check */
 function coverScreen(){
+  A.scene('play');
   set(`${homeBtn()}
   <div class="center">
     <div class="big">${g.i+1}번 플레이어 차례</div>
@@ -502,6 +804,7 @@ function revealScreen(){
 
 /* 5. vote */
 function voteScreen(){
+  A.scene('play');
   g.sel=[];
   const need=cfg.liars;
   let btns='';for(let i=0;i<cfg.n;i++)btns+=`<button class="pbtn" data-i="${i}">${i+1}번</button>`;
@@ -526,6 +829,7 @@ function voteScreen(){
 
 /* 6. reveal */
 function revealLiars(){
+  A.scene('play');
   g.caught=g.liars.every(l=>g.sel.includes(l));
   const names=g.liars.map(l=>(l+1)+'번').join(', ');
   let grid='';for(let i=0;i<cfg.n;i++)grid+=`<div class="pbtn ${g.liars.includes(i)?'liar':''}" style="display:flex;align-items:center;justify-content:center">${i+1}번</div>`;
@@ -536,6 +840,7 @@ function revealLiars(){
     <div class="card"><div class="${gridCls()}">${grid}</div></div>
     <button class="btn" id="nx">라이어의 정답 기회</button>`);
     on('nx',guessScreen);
+    A.sfx.chime();
   }else{
     set(`<div class="topbar" style="min-height:44px"></div>
     <div class="banner">라이어 승리!</div>
@@ -543,9 +848,11 @@ function revealLiars(){
     <div class="card"><div class="${gridCls()}">${grid}</div></div>
     <button class="btn" id="nx">제시어 공개</button>`);
     on('nx',()=>resultScreen('liar'));
+    A.sfx.bleat();
   }
 }
 function guessScreen(){
+  A.scene('guess');
   const pool=WORDS[g.cat].map(([w])=>w).filter(w=>w!==g.word&&w!==g.fool);
   for(let i=pool.length-1;i>0;i--){const j=rnd(i+1);[pool[i],pool[j]]=[pool[j],pool[i]];}
   const opts=[g.word,...pool.slice(0,5)];
@@ -559,6 +866,7 @@ function guessScreen(){
   btns.forEach((b,i)=>b.onclick=()=>{
     btns.forEach(x=>x.disabled=true);
     const ok=opts[i]===g.word;
+    if(ok)A.sfx.chime();else A.sfx.bonk();
     if(ok){b.classList.add('right');b.textContent='✓ '+opts[i];}
     else{b.classList.add('wrong');b.textContent='✗ '+opts[i];
       const k=opts.indexOf(g.word);btns[k].classList.add('right');btns[k].textContent='✓ '+opts[k];}
@@ -568,6 +876,8 @@ function guessScreen(){
 
 /* 7. result */
 function resultScreen(winner,guessed){
+  A.scene('result');
+  if(winner==='citizen')A.sfx.tada();else if(guessed)A.sfx.bleat();
   const msg=winner==='citizen'?'시민 승리!':(guessed?'라이어 승리! (제시어를 맞혔어요)':'라이어 승리!');
   set(`<div class="topbar" style="min-height:44px"></div>
   <div class="bwrap">${sheepSVG(winner!=='citizen')}<div class="banner">${msg}</div></div>
@@ -614,6 +924,7 @@ function leaveLanding(){
   if(landingEl){landingEl.remove();landingEl=null;}
 }
 function landingScreen(){
+  A.scene('landing');
   const NS='http://www.w3.org/2000/svg';
   landingEl=document.createElement('div');landingEl.id='landing';
   landingEl.innerHTML='<svg id="lsv" viewBox="0 0 300 520" preserveAspectRatio="xMidYMax slice" role="img" aria-label="풀밭의 양 떼 애니메이션"></svg><div class="lt"><div class="lt1">성경 라이어</div><div class="lt2">우리 중에 검은 양이 있다</div></div><button class="lb" id="lstart">게임 시작</button>';
@@ -672,7 +983,7 @@ function frame(){const t=reduce?0:performance.now()-t0;raf=0;
  B.drop.setAttribute('opacity',mode==='f'&&(t>>8)%4<3?1:0);
  if(!reduce&&landingEl)raf=requestAnimationFrame(frame)}
   frame();
-  document.getElementById('lstart').onclick=()=>{leaveLanding();setupScreen();};
+  document.getElementById('lstart').onclick=()=>{A.start();leaveLanding();setupScreen();};
 }
 
 buildBg();
