@@ -1,0 +1,51 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Wrap index.html with Capacitor
+        run: |
+          mkdir app && cd app
+          npm init -y >/dev/null
+          npm i @capacitor/core @capacitor/cli @capacitor/android
+          mkdir www && cp ../index.html www/index.html
+          npx cap init "성경 라이어" com.jiho755.bibleliar --web-dir www
+          npx cap add android
+          npx cap sync android
+
+      - name: Build debug APK
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../../bible-liar.apk
+
+      - name: Publish to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: 성경 라이어 APK (최신)
+          body: main 브랜치에 올라온 최신 index.html로 자동 빌드한 테스트용 APK예요.
+          make_latest: true
+          files: bible-liar.apk
