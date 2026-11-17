@@ -2,6 +2,22 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<script>
+/* 앱(APK)에서 열렸을 때: 인터넷이 되면 GitHub Pages의 최신 버전으로 이동, 안 되면 앱에 들어있는 버전으로 실행 */
+(function(){
+  var REMOTE='https://jiho755.github.io/liar_game/';
+  if(location.hostname!=='localhost')return;
+  var de=document.documentElement;de.style.background='#6F9650';de.style.visibility='hidden';
+  var done=false;function show(){if(done)return;done=true;de.style.visibility='';}
+  var ctl=window.AbortController?new AbortController():null;
+  var timer=setTimeout(function(){if(ctl)ctl.abort();show();},2500);
+  try{
+    fetch(REMOTE+'index.html?check='+Date.now(),{cache:'no-store',signal:ctl?ctl.signal:undefined})
+      .then(function(r){if(r.ok&&!done){done=true;clearTimeout(timer);location.replace(REMOTE+'?v='+Date.now());}else{show();}})
+      .catch(show);
+  }catch(e){show();}
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#6F9650">
 <title>성경 라이어 게임</title>
