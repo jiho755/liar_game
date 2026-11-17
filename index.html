@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#6F9650">
+<title>성경 라이어 게임</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FFF9EC;--cream2:#E6F0D8;--green:#6F9650;--olive:#4A6A34;--ink:#3E5A2C;--ink2:#6E7F5E;--line:#E6DCC4;--liar:#2B2A28;--ok:#5E8A3E;--bad:#B5574B;--jua:'Jua','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--green);color:var(--cream);font-family:'Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:18px;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+#bg{position:fixed;inset:0;z-index:0;background:var(--green);pointer-events:none;overflow:hidden}
+#bg svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#app{position:relative;z-index:1;min-height:100%;max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 20px) calc(env(safe-area-inset-left) + 16px);display:flex;flex-direction:column}
+.screen{flex:1;display:flex;flex-direction:column;gap:14px;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.screen,.mask{animation:none}.btn,.btn:active,.mcbtn:active{transition:none;transform:none}}
+h1,h2{font-family:var(--jua);color:var(--cream);text-shadow:0 2px 0 rgba(60,90,40,.35);font-weight:400}
+h1{font-size:30px;margin:8px 0 0;text-align:center}
+h2{font-size:26px;margin:0;text-align:center}
+.sub{text-align:center;color:var(--cream2);margin:0;font-weight:500;text-shadow:0 1px 0 rgba(40,70,25,.4)}
+.card{background:var(--cream);color:var(--ink);border:1.5px solid var(--line);border-radius:18px;padding:16px}
+.label{font-size:16px;color:var(--cream2);font-weight:500;margin-bottom:8px;text-shadow:0 1px 0 rgba(40,70,25,.4)}
+.card .label{color:var(--ink2);text-shadow:none}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.btn{display:block;width:100%;min-height:56px;padding:12px 16px;border-radius:99px;background:var(--cream);color:var(--olive);font-family:var(--jua);font-size:21px;font-weight:400;box-shadow:0 3px 0 rgba(60,90,40,.35);transition:transform .1s,opacity .2s}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn.olive{background:var(--cream);color:var(--olive)}
+.btn.ghost{background:transparent;color:var(--cream);border:2px solid var(--cream);box-shadow:none}
+.btn:disabled{opacity:.5}
+.mc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mcbtn{min-height:56px;padding:10px 8px;border-radius:18px;border:1.5px solid var(--line);background:var(--cream);color:var(--ink);font-family:var(--jua);font-size:19px;font-weight:400;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere;min-width:0}
+.mcbtn:active{transform:scale(.98)}
+.mcbtn:disabled{opacity:1}
+.mcbtn.right{background:var(--ok);border-color:var(--ok);color:var(--cream)}
+.mcbtn.wrong{background:var(--bad);border-color:var(--bad);color:var(--cream)}
+.stepper button{width:56px;height:56px;border-radius:99px;background:var(--olive);color:var(--cream);font-family:var(--jua);font-size:30px;line-height:1}
+.stepper button:disabled{opacity:.4}
+.stepper .val{font-family:var(--jua);font-size:32px;min-width:64px;text-align:center;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+#cats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#cats .chip{padding:8px 4px;font-size:17px;line-height:1.2;word-break:keep-all;min-width:0}
+#cats .chip:first-child{grid-column:1/-1}
+.chip{min-height:48px;padding:8px 16px;border-radius:99px;border:1.5px solid #D8CCAA;background:var(--cream);color:var(--ink);font-family:var(--jua);font-size:19px;font-weight:400}
+.chip.on{background:var(--olive);border-color:var(--olive);color:var(--cream)}
+.chip:disabled{opacity:.5}
+.switch{width:60px;height:34px;border-radius:999px;background:#cfc7ad;position:relative;flex:none;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:#fff;transition:transform .2s}
+.switch.on{background:var(--olive)}.switch.on::after{transform:translateX(26px)}
+details summary{font-family:var(--jua);font-weight:400;font-size:20px;cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--ink)}
+details ol{margin:4px 0 0;padding-left:22px;font-size:17px}
+.spacer{flex:1}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;flex:1}
+.big{font-family:var(--jua);font-size:36px;font-weight:400;color:var(--cream);text-shadow:0 2px 0 rgba(60,90,40,.35)}
+.card .big{color:var(--ink);text-shadow:none}
+.warn{display:inline-block;background:var(--cream);color:var(--bad);font-weight:700;font-size:17px;padding:6px 16px;border-radius:99px}
+.wordbox{background:var(--cream);color:var(--ink);border:1.5px solid var(--line);border-radius:18px;width:100%;height:190px;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;font-family:var(--jua);font-size:36px;font-weight:400;line-height:1.3;word-break:keep-all}
+.cat{font-family:var(--jua);font-size:21px;font-weight:400;color:var(--cream)}
+.card .cat{color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pbtn{min-height:76px;border-radius:18px;border:1.5px solid #D8CCAA;background:var(--cream);color:var(--ink);font-family:var(--jua);font-size:26px;font-weight:400}
+.pbtn.on{background:var(--olive);border-color:var(--olive);color:var(--cream)}
+.pbtn.liar{background:var(--liar);border-color:var(--liar);color:var(--cream)}
+.grid.g4{grid-template-columns:repeat(4,1fr);gap:8px}
+.grid.g4 .pbtn{min-height:60px;font-size:22px;border-radius:16px}
+.topbar{display:flex;justify-content:flex-end;min-height:0}
+.small{font-size:16px;min-height:44px;padding:6px 14px;color:var(--cream2);text-decoration:underline;font-weight:500}
+.verse{font-size:24px;font-weight:700;color:var(--ink)}
+.note{font-size:16px;color:var(--cream2);font-weight:500;text-shadow:0 1px 0 rgba(40,70,25,.4)}
+.card .note{color:var(--ink2);text-shadow:none;font-weight:400}
+.mask{position:fixed;inset:0;background:rgba(40,60,28,.6);display:flex;align-items:center;justify-content:center;padding:24px;z-index:10;animation:fade .2s}
+.dlg{background:var(--cream);color:var(--ink);border:1.5px solid var(--line);border-radius:18px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;text-align:center}
+.dlg .btn{background:var(--olive);color:var(--cream);box-shadow:none}
+.dlg .btn.ghost{background:transparent;color:var(--olive);border:2px solid var(--olive)}
+.banner{border-radius:18px;padding:14px;font-family:var(--jua);font-size:26px;font-weight:400;text-align:center;background:var(--cream);color:var(--olive);border:1.5px solid var(--line)}
+.bwrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.bwrap .banner{width:100%}
+.bsheep{width:70px;height:auto;display:block}
+
+#landing{position:fixed;inset:0;z-index:5;background:#6F9650;overflow:hidden;font-family:'Jua','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;-webkit-user-select:none;user-select:none}
+#landing svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#landing .lt{position:absolute;left:0;right:0;top:13%;text-align:center;padding:0 16px;pointer-events:none}
+#landing .lt1{font-size:clamp(36px,10.5vw,46px);line-height:1.15;color:#FFF9EC;text-shadow:0 2px 0 rgba(60,90,40,.35)}
+#landing .lt2{font-size:clamp(15px,4.3vw,19px);color:#E6F0D8;margin-top:8px}
+#landing .lb{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + clamp(48px,9vh,84px));width:min(calc(100% - 100px),320px);min-height:52px;border:0;border-radius:99px;background:#FFF9EC;color:#4A6A34;font-family:inherit;font-size:clamp(18px,5vw,21px);padding:12px;cursor:pointer;box-shadow:0 3px 0 rgba(60,90,40,.35)}
+#landing .lb:active{transform:translateX(-50%) translateY(1px)}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+</head>
+<body>
+<div id="bg" aria-hidden="true"></div>
+<div id="app"></div>
+<script>
+const WORDS = {
+  "인물": [
+    ["아브라함","창 12:1-3"],["사라","창 18:10-14"],["이삭","창 22:1-14"],["야곱","창 28:10-17"],
+    ["요셉","창 37:3-11"],["모세","출 3:1-10"],["아론","출 4:14-16"],["여호수아","수 1:1-9"],
+    ["라합","수 2:1-21"],["기드온","삿 6:11-16"],["삼손","삿 16:28-30"],["룻","룻 1:16-17"],
+    ["사무엘","삼상 3:1-10"],["다윗","삼상 17:45-50"],["골리앗","삼상 17:4-11"],["솔로몬","왕상 3:5-14"],
+    ["엘리야","왕상 18:36-39"],["엘리사","왕하 2:9-15"],["요나","욘 1:1-17"],["다니엘","단 6:16-23"],
+    ["에스더","에 4:14-16"],["욥","욥 1:20-22"],["세례 요한","마 3:1-6"],["베드로","마 16:13-18"],
+    ["삭개오","눅 19:1-10"],["마르다","눅 10:38-42"],["도마","요 20:24-29"],["니고데모","요 3:1-15"],
+    ["바울","행 9:1-19"],["바나바","행 4:36-37"],["아담","창 2:18-23"],["하와","창 3:20"],
+    ["가인","창 4:3-8"],["아벨","창 4:2-4"],["셋","창 4:25-26"],["에녹","창 5:21-24"],
+    ["므두셀라","창 5:27"],["노아","창 6:9-14"],["멜기세덱","창 14:18-20"],["롯","창 19:15-17"],
+    ["하갈","창 16:7-13"],["이스마엘","창 21:14-20"],["리브가","창 24:15-20"],["에서","창 25:29-34"],
+    ["라반","창 29:21-25"],["라헬","창 29:16-20"],["레아","창 29:31-35"],["유다(야곱의 아들)","창 44:18-34"],
+    ["보디발","창 39:1-6"],["보디발의 아내","창 39:7-12"],["요게벳","출 2:1-3"],["바로의 딸","출 2:5-10"],
+    ["바로 왕","출 5:1-2"],["미리암","출 15:20-21"],["이드로","출 18:17-24"],["갈렙","민 13:30"],
+    ["발람","민 22:21-30"],["드보라","삿 4:4-9"],["입다","삿 11:30-31"],["나오미","룻 1:20-21"],
+    ["보아스","룻 2:8-12"],["한나","삼상 1:10-18"],["엘리","삼상 1:12-17"],["사울","삼상 10:1"],
+    ["이새","삼상 16:10-13"],["요나단","삼상 18:1-4"],["미갈","삼상 19:11-17"],["아비가일","삼상 25:23-31"],
+    ["나단","삼하 12:1-7"],["밧세바","삼하 11:2-5"],["우리아","삼하 11:14-17"],["압살롬","삼하 15:1-6"],
+    ["스바의 여왕","왕상 10:1-10"],["아합","왕상 16:30-33"],["이세벨","왕상 19:1-2"],["사르밧 과부","왕상 17:8-16"],
+    ["수넴 여인","왕하 4:8-17"],["나아만","왕하 5:9-14"],["게하시","왕하 5:20-27"],["히스기야","왕하 20:1-6"],
+    ["요시야","왕하 22:8-11"],["느부갓네살","단 4:28-33"],["벨사살","단 5:1-6"],["사드락, 메삭, 아벳느고","단 3:16-18"],
+    ["에스라","스 7:6-10"],["느헤미야","느 2:17-18"],["모르드개","에 4:13-14"],["하만","에 7:6-10"],
+    ["아하수에로","에 1:1-3"],["이사야","사 6:1-8"],["예레미야","렘 1:4-10"],["에스겔","겔 37:1-10"],
+    ["호세아","호 1:2-3"],["아모스","암 7:14-15"],["사탄","욥 1:6-12"],["가브리엘","눅 1:26-28"],
+    ["미가엘","유 1:9"],["마리아","눅 1:38"],["요셉(마리아의 남편)","마 1:18-25"],["엘리사벳","눅 1:39-45"],
+    ["사가랴","눅 1:11-20"],["시므온","눅 2:25-32"],["안나","눅 2:36-38"],["헤롯","마 2:1-3"],
+    ["안드레","요 1:40-42"],["사도 야고보","막 1:19-20"],["사도 요한","요 13:23-25"],["사도 빌립","요 1:43-46"],
+    ["나다나엘","요 1:47-49"],["마태","마 9:9"],["가룟 유다","마 26:14-16"],["맛디아","행 1:21-26"],
+    ["막달라 마리아","요 20:11-16"],["빌라도","마 27:11-14"],["바라바","마 27:15-21"],["아리마대 요셉","마 27:57-60"],
+    ["구레네 시몬","눅 23:26"],["야이로","막 5:22-24"],["사마리아 여인","요 4:7-10"],["바디매오","막 10:46-52"],
+    ["로마 백부장","마 8:5-10"],["가말리엘","행 5:34-39"],["스데반","행 6:8-10"],["전도자 빌립","행 8:26-31"],
+    ["에디오피아 내시","행 8:36-38"],["다비다","행 9:36-40"],["고넬료","행 10:1-4"],["아그립바 왕","행 26:27-28"],
+    ["실라","행 15:40"],["루디아","행 16:14-15"],["빌립보 간수","행 16:27-34"],["유두고","행 20:9-12"],
+    ["아볼로","행 18:24-28"],["브리스길라","행 18:2-3"],["디모데","딤후 1:5"],["디도","딛 1:4-5"],
+    ["누가","골 4:14"],["마가","행 12:12"],["빌레몬","몬 1:10-16"],["오네시모","몬 1:10-12"]
+  ],
+  "장소": [
+    ["에덴동산","창 2:8-15"],["바벨탑","창 11:1-9"],["소돔","창 19:24-26"],["애굽","출 1:8-14"],
+    ["시내산","출 19:16-20"],["여리고","수 6:15-20"],["가나안","출 3:8"],["베들레헴","눅 2:4-7"],
+    ["나사렛","눅 2:39-40"],["갈릴리 바다","마 4:18-20"],["요단강","마 3:13-17"],["예루살렘","시 122:1-6"],
+    ["겟세마네","마 26:36-39"],["골고다","요 19:17-18"],["엠마오","눅 24:13-16"],["다메섹","행 9:3-6"],
+    ["니느웨","욘 3:1-5"],["바벨론","단 1:1-2"],["아라랏산","창 8:4"],["밧모섬","계 1:9"],
+    ["가버나움","마 4:13"],["사마리아","요 4:4-6"],["갈멜산","왕상 18:19"],["감람산","행 1:12"],
+    ["실로암 못","요 9:6-7"],["벧엘","창 28:19"],["브니엘","창 32:30"],["헤브론","창 13:18"],
+    ["로마","행 28:14-16"],["고린도","행 18:1"],["에베소","행 19:1"],["빌립보","행 16:12"],
+    ["데살로니가","행 17:1"],["아덴","행 17:22-23"],["안디옥","행 11:26"],["브엘세바","창 21:31-33"],
+    ["모리아산","창 22:2"],["하란","창 12:4-5"],["갈대아 우르","창 11:31"],["길갈","수 4:19-20"],
+    ["아이성","수 7:2-5"],["실로","삼상 1:3"],["다볼산","삿 4:6"],["엘라 골짜기","삼상 17:2"],
+    ["수가","요 4:5"],["야곱의 우물","요 4:6"],["벳바게","마 21:1"],["벳새다","요 1:44"],
+    ["가나","요 2:1"],["나인 성","눅 7:11-15"],["거라사","막 5:1"],["가이사랴 빌립보","마 16:13"],
+    ["가이사랴","행 10:1"],["다시스","욘 1:3"],["고센 땅","창 47:6"],["미디안","출 2:15"],
+    ["호렙산","출 3:1"],["느보산","신 34:1"],["모압","룻 1:1"],["엔게디","삼상 24:1"],
+    ["마라","출 15:23"],["그릿 시내","왕상 17:3-6"],["루스드라","행 14:8"],["서머나","계 2:8"],
+    ["버가모","계 2:12"],["두아디라","계 2:18"],["사데","계 3:1"],["빌라델비아","계 3:7"],
+    ["라오디게아","계 3:14"],["새 예루살렘","계 21:1-2"],["낙원","눅 23:43"],["아마겟돈","계 16:16"],
+    ["솔로몬 성전","왕상 6:1"],["성전 미문","행 3:2"],["베데스다 못","요 5:2-9"],["다락방","행 1:13"],
+    ["사망의 음침한 골짜기","시 23:4"],["유대 광야","마 3:1"],["막벨라 굴","창 23:19"],["멜리데 섬","행 28:1"],
+    ["드로아","행 16:8-10"],["베다니","요 11:1"],["기드론 시내","요 18:1"],["시온산","시 2:6"],
+    ["두로","마 15:21"],["욥바","행 9:36"],["사르밧","왕상 17:9"],["수산 궁","에 1:2"],
+    ["바벨론 강가","시 137:1"],["곧은 길(직가)","행 9:11"]
+  ],
+  "사건": [
+    ["천지창조","창 1:1-31"],["선악과","창 3:1-7"],["노아의 방주","창 6:13-22"],["무지개 언약","창 9:12-17"],
+    ["야곱의 사다리","창 28:12"],["열 가지 재앙","출 12:29-31"],["유월절","출 12:21-27"],["홍해가 갈라짐","출 14:21-22"],
+    ["십계명","출 20:1-17"],["갈멜산 대결","왕상 18:20-39"],["풀무불","단 3:19-27"],["예수님 탄생","눅 2:1-7"],
+    ["동방박사","마 2:1-11"],["예수님 세례","마 3:13-17"],["물이 포도주로","요 2:1-11"],["오병이어","요 6:5-13"],
+    ["물 위를 걸으심","마 14:25-31"],["나사로를 살리심","요 11:38-44"],["변화산","마 17:1-8"],["최후의 만찬","마 26:26-29"],
+    ["십자가","요 19:28-30"],["부활","마 28:1-7"],["승천","행 1:9-11"],["오순절 성령강림","행 2:1-4"],
+    ["빌립보 감옥 찬양","행 16:25-26"],["가인과 아벨","창 4:3-8"],["아브라함의 부르심","창 12:1-4"],["세 천사의 방문","창 18:1-5"],
+    ["아브라함의 중보기도","창 18:23-32"],["소돔의 멸망","창 19:24-25"],["롯의 아내","창 19:26"],["이삭의 탄생","창 21:1-3"],
+    ["이삭을 바침","창 22:9-13"],["팥죽 한 그릇","창 25:29-34"],["야곱이 축복을 가로챔","창 27:18-29"],["야곱의 씨름","창 32:24-30"],
+    ["요셉의 꿈","창 37:5-9"],["요셉이 팔려감","창 37:23-28"],["바로의 꿈","창 41:1-7"],["요셉이 총리가 됨","창 41:39-43"],
+    ["요셉과 형제들의 재회","창 45:1-5"],["갈대상자 속의 모세","출 2:1-10"],["떨기나무 불꽃","출 3:1-6"],["불기둥과 구름기둥","출 13:21-22"],
+    ["마라의 쓴 물","출 15:22-25"],["반석에서 물이 나옴","출 17:1-6"],["아말렉 전투","출 17:8-13"],["금송아지","출 32:1-6"],
+    ["모세 얼굴의 광채","출 34:29-30"],["열두 정탐꾼","민 13:25-33"],["광야 40년","민 14:33-34"],["고라의 반역","민 16:31-33"],
+    ["말하는 나귀","민 22:28-30"],["모세의 죽음","신 34:5-8"],["요단강을 건넘","수 3:14-17"],["여리고성 함락","수 6:20"],
+    ["아간의 범죄","수 7:20-21"],["태양이 멈춤","수 10:12-14"],["기드온의 삼백 용사","삿 7:19-22"],["삼손의 머리카락","삿 16:15-20"],
+    ["언약궤를 빼앗김","삼상 4:10-11"],["다윗의 기름부음","삼상 16:11-13"],["사울이 다윗에게 창을 던짐","삼상 18:10-11"],["다윗이 사울을 살려줌","삼상 24:1-7"],
+    ["언약궤 앞에서 춤춘 다윗","삼하 6:12-15"],["솔로몬의 재판","왕상 3:16-28"],["성전 봉헌","왕상 8:22-30"],["왕국의 분열","왕상 12:16-20"],
+    ["까마귀가 먹인 엘리야","왕상 17:2-6"],["세미한 소리","왕상 19:11-13"],["나봇의 포도원","왕상 21:1-16"],["불말과 불병거","왕하 2:11"],
+    ["수넴 여인의 아들을 살림","왕하 4:32-35"],["앗수르 군대의 몰살","왕하 19:35"],["히스기야의 해 그림자","왕하 20:8-11"],["바벨론 포로","왕하 25:8-11"],
+    ["고레스의 귀환 칙령","스 1:1-4"],["성전 기초를 놓음","스 3:10-11"],["성벽 재건","느 6:15"],["율법책 낭독","느 8:1-3"],
+    ["다니엘의 채식","단 1:8-16"],["느부갓네살의 꿈","단 2:31-35"],["벽에 쓴 글씨","단 5:5"],["마른 뼈들이 살아남","겔 37:1-10"],
+    ["수태고지","눅 1:26-35"],["마리아의 찬가","눅 1:46-55"],["목자들에게 나타난 천사","눅 2:8-14"],["애굽으로 피신","마 2:13-15"],
+    ["열두 살 예수님","눅 2:41-49"],["광야의 시험","마 4:1-11"],["산상수훈","마 5:1-12"],["주기도문","마 6:9-13"],
+    ["중풍병자와 지붕","막 2:3-5"],["백부장의 종을 고치심","마 8:5-13"],["풍랑을 잠잠케 하심","막 4:37-41"],["거라사 광인과 돼지 떼","막 5:1-13"],
+    ["혈루증 여인의 치유","막 5:25-34"],["야이로의 딸을 살리심","막 5:35-42"],["세례 요한의 죽음","막 6:21-28"],["가나안 여인의 믿음","마 15:21-28"],
+    ["나인 성 과부의 아들","눅 7:11-15"],["날 때부터 맹인을 고치심","요 9:1-7"],["열 명의 나병환자","눅 17:11-19"],["간음하다 잡힌 여인","요 8:3-11"],
+    ["어린아이들을 축복하심","막 10:13-16"],["부자 청년","막 10:17-22"],["성전 정화","요 2:13-16"],["예루살렘 입성","마 21:1-9"],
+    ["무화과나무를 저주하심","막 11:12-14"],["세족식","요 13:3-5"],["가룟 유다의 배신","마 26:47-50"],["베드로의 부인","마 26:69-75"],
+    ["성소 휘장이 찢어짐","마 27:50-51"],["십자가 위의 강도","눅 23:39-43"],["십자가 위의 용서 기도","눅 23:34"],["어머니를 요한에게 부탁하심","요 19:26-27"],
+    ["옷을 제비뽑음","요 19:23-24"],["153마리 물고기","요 21:5-11"],["내 양을 먹이라","요 21:15-17"],["대위임령","마 28:18-20"],
+    ["초대교회의 재산 공유","행 2:44-45"],["삼천 명의 회개","행 2:41"],["성전 미문의 걷는 사람","행 3:6-8"],["아나니아와 삽비라","행 5:1-5"],
+    ["일곱 집사 선택","행 6:1-6"],["사울의 회심","행 9:3-6"],["베드로의 환상","행 10:9-16"],["베드로가 옥에서 풀려남","행 12:6-11"],
+    ["안디옥의 그리스도인","행 11:26"],["마게도냐 환상","행 16:9-10"],["에베소의 마술책 소각","행 19:18-19"],["유라굴로 풍랑","행 27:14-20"],
+    ["멜리데 섬의 독사","행 28:3-5"],["예수님의 재림","살전 4:16-17"],["새 하늘과 새 땅","계 21:1-4"],["니느웨의 회개","욘 3:5-10"],
+    ["하갈과 이스마엘의 추방","창 21:14"],["첫 제자를 부르심","마 4:18-22"],["나사렛에서 배척당하심","눅 4:28-29"],["열두 제자 선택","눅 6:12-16"]
+  ],
+  "비유·물건": [
+    ["탕자 비유","눅 15:11-32"],["선한 사마리아인","눅 10:30-37"],["달란트 비유","마 25:14-30"],["씨 뿌리는 비유","마 13:3-9"],
+    ["겨자씨","마 13:31-32"],["잃은 양","눅 15:4-7"],["열 처녀 비유","마 25:1-13"],["반석 위의 집","마 7:24-27"],
+    ["포도원 품꾼","마 20:1-16"],["값진 진주","마 13:45-46"],["언약궤","출 25:10-22"],["물맷돌","삼상 17:49"],
+    ["놋뱀","민 21:8-9"],["모세의 지팡이","출 4:2-4"],["나팔","수 6:4-5"],["채색옷","창 37:3"],
+    ["가시면류관","요 19:2"],["옥합","막 14:3-9"],["양털","삿 6:36-40"],["엘리야의 겉옷","왕하 2:13-14"],
+    ["은 삼십","마 26:14-16"],["그물","눅 5:4-7"],["등불","마 5:14-16"],["소금","마 5:13"],
+    ["열 므나 비유","눅 19:11-27"],["열매 없는 무화과나무","눅 13:6-9"],["포도나무와 가지","요 15:1-5"],["부자와 나사로","눅 16:19-31"],
+    ["불의한 재판관","눅 18:1-8"],["혼인 잔치 비유","마 22:1-10"],["큰 잔치 비유","눅 14:16-24"],["잃어버린 드라크마","눅 15:8-10"],
+    ["누룩 비유","마 13:33"],["밭에 감추인 보화","마 13:44"],["알곡과 가라지","마 13:24-30"],["용서할 줄 모르는 종","마 18:23-35"],
+    ["어리석은 부자","눅 12:16-21"],["바리새인과 세리","눅 18:9-14"],["한밤중에 찾아온 친구","눅 11:5-8"],["불의한 청지기","눅 16:1-8"],
+    ["악한 포도원 농부","마 21:33-41"],["두 아들 비유","마 21:28-32"],["양과 염소","마 25:31-46"],["들보와 티","마 7:3-5"],
+    ["새 포도주와 새 부대","마 9:17"],["좁은 문","마 7:13-14"],["들의 백합화","마 6:28-29"],["공중의 새","마 6:26"],
+    ["양의 문","요 10:7-9"],["선한 목자","요 10:11-14"],["생명의 떡","요 6:35"],["생수","요 4:14"],
+    ["길과 진리와 생명","요 14:6"],["두 렙돈","막 12:41-44"],["다윗의 수금","삼상 16:23"],["노아의 비둘기","창 8:11"],
+    ["생명나무","창 2:9"],["가죽옷","창 3:21"],["화염검","창 3:24"],["횃불 언약","창 15:17"],
+    ["돌베개","창 28:11"],["요셉의 은잔","창 44:2"],["요단강의 열두 돌","수 4:8-9"],["문설주의 피","출 12:7"],
+    ["성막","출 25:8-9"],["촛대","출 25:31-37"],["진설병","출 25:30"],["번제단","출 27:1-2"],
+    ["제사장 옷","출 28:2-4"],["우림과 둠밈","출 28:30"],["분향단","출 30:1"],["청동 물두멍","출 30:18"],
+    ["아론의 싹 난 지팡이","민 17:8"],["가루 통과 기름병","왕상 17:14-16"],["로뎀나무","왕상 19:4"],["엘리사의 도끼","왕하 6:5-7"],
+    ["요나의 박넝쿨","욘 4:6"],["스랍의 숯","사 6:6-7"],["토기장이와 진흙","렘 18:1-6"],["사울의 갑옷","삼상 17:38-39"],
+    ["에스더의 금홀","에 5:2"],["하만의 교수대","에 7:9-10"],["황금, 유향, 몰약","마 2:11"],["동방박사의 별","마 2:9"],
+    ["구유","눅 2:7"],["강보","눅 2:12"],["물 항아리","요 2:6-7"],["종려나무 가지","요 12:13"],
+    ["대야와 수건","요 13:4-5"],["베드로의 칼","요 18:10"],["사마리아 여인의 물동이","요 4:28"],["신 포도주 적신 해면","요 19:29"],
+    ["십자가 패","요 19:19-20"],["세마포","요 19:40"],["예수님의 옷자락","마 9:20"],["못 자국","요 20:25"],
+    ["무덤의 돌","막 16:3-4"],["오순절 불의 혀","행 2:3"],["보자기","행 10:11"],["사랑은 오래 참고","고전 13:4-7"],
+    ["성령의 열매","갈 5:22-23"],["하나님의 전신갑주","엡 6:13-17"],["믿음의 방패","엡 6:16"],["성령의 검","엡 6:17"],
+    ["일곱 촛대","계 1:12-13"],["일곱 인","계 5:1"],["생명책","계 20:12"],["맷돌","마 18:6"],
+    ["요셉의 곡식 단","창 37:7"],["무화과 잎 치마","창 3:7"],["바벨탑의 벽돌","창 11:3"],["기드온의 항아리와 횃불","삿 7:16"],
+    ["삼손의 나귀 턱뼈","삿 15:15"],["기름 뿔","삼상 16:13"],["느부갓네살의 금 신상","단 3:1"],["요나의 배","욘 1:3-4"],
+    ["푸른 초장과 쉴 만한 물","시 23:2"],["물고기 입의 은전","마 17:27"],["가이사의 데나리온","마 22:19-21"],["바울의 손수건","행 19:11-12"],
+    ["천국 열쇠","마 16:19"],["한 알의 밀알","요 12:24"]
+  ],
+  "교회 생활": [
+    ["수련회",""],["새벽기도",""],["주보",""],["성찬식",""],
+    ["중보기도",""],["구역예배",""],["헌금",""],["주일학교",""],
+    ["성가대",""],["찬양팀",""],["큐티",""],["통성기도",""],
+    ["금요철야",""],["부흥회",""],["세례식",""],["목사님",""],
+    ["장로",""],["권사",""],["전도사",""],["교회 봉고차",""],
+    ["친교실",""],["주차 봉사",""],["성경 암송",""],["여름성경학교",""],
+    ["달란트 시장",""],["부활절 달걀",""],["크리스마스 칸타타",""],["단기선교",""],
+    ["집사",""],["안수집사",""],["사모님",""],["청년부",""],
+    ["중고등부",""],["유년부",""],["대예배",""],["수요예배",""],
+    ["주일예배",""],["송구영신예배",""],["추수감사절",""],["맥추감사절",""],
+    ["새벽송",""],["성경공부",""],["제자훈련",""],["새가족부",""],
+    ["셀 모임",""],["순장",""],["교사 헌신예배",""],["반주자",""],
+    ["감사헌금",""],["헌금 봉투",""],["축도",""],["설교",""],
+    ["대표기도",""],["봉헌 순서",""],["찬송가 책",""],["성경 가방",""],
+    ["교회 카페",""],["주일 점심 식사",""],["장례예배",""],["심방",""],
+    ["전도지",""],["노방전도",""],["선교사 파송",""],["선교 바자회",""],
+    ["기도원",""],["산기도",""],["작정기도",""],["금식기도",""],
+    ["특별새벽기도회",""],["성경 필사",""],["성경 통독표",""],["주일 성수",""],
+    ["성경 골든벨",""],["성극",""],["율동 찬양",""],["캠프파이어",""],
+    ["조 모임",""],["간증",""],["방송실",""],["안내 위원",""],
+    ["체육대회",""],["연합예배",""],["입교식",""],["유아세례",""],
+    ["임직식",""],["교회 창립기념일",""],["수양관",""],["성가 연습",""],
+    ["헌금 위원",""],["교회 성탄 트리",""],["성탄 선물 나눔",""],["성경 통독 모임",""],
+    ["주일 오후 예배",""],["교구",""],["구역장",""],["권찰회",""],
+    ["어버이주일",""],["어린이주일",""],["부활절 새벽예배",""],["신년 감사예배",""]
+  ],
+  "찬양 제목": [
+    ["나 같은 죄인 살리신",""],["주 하나님 지으신 모든 세계",""],["내 주를 가까이 하게 함은",""],["예수 사랑하심은",""],
+    ["죄짐 맡은 우리 구주",""],["고요한 밤 거룩한 밤",""],["내 영혼이 은총 입어",""],["샘물과 같은 보혈은",""],
+    ["면류관 벗어 던지고",""],["거룩 거룩 거룩",""],["내 주는 강한 성이요",""],["기뻐하며 경배하세",""],
+    ["오 신실하신 주",""],["십자가를 질 수 있나",""],["웬 말인가 날 위하여",""],["갈보리 산 위에",""],
+    ["부름 받아 나선 이 몸",""],["천성을 향해 가는 우리는",""],["주 안에 있는 나에게",""],["선한 목자 되신 우리 주",""],
+    ["어서 돌아오오",""],["시온성과 같은 교회",""],["참 반가운 성도여",""],
+    ["기쁘다 구주 오셨네",""],["곧 오소서 임마누엘",""],["천사들의 노래가",""],["사철에 봄바람 불어 잇고",""],
+    ["이 몸의 소망 무엇이냐",""],["주 예수 해변에서",""],["저 장미꽃 위에 이슬",""],["나의 갈 길 다 가도록",""],
+    ["주 예수 넓은 품에",""],["내 주여 뜻대로 행하사",""],["주 달려 죽은 십자가",""],["만세 반석 열리니",""],
+    ["오 베들레헴 작은 골",""],["저 들 밖에 한밤중에",""],["그 어린 주 예수",""],["나의 죄를 씻기는",""],
+    ["내 평생에 가는 길",""],["하늘 가는 밝은 길이",""],["어느 민족 누구게나",""],["내 맘에 한 노래 있어",""],
+    ["복의 근원 강림하사",""],["하나님의 크신 사랑",""],["주 예수 이름 높이어",""],["예수 나를 위하여",""],
+    ["만복의 근원 하나님",""],["나의 사랑하는 책",""],["인애하신 구세주여",""],["주의 친절한 팔에 안기세",""],
+    ["주 예수 보다 더 귀한 것은 없네",""],["구주를 생각만 해도",""],["십자가 그늘 아래",""],["예수께로 가면",""],
+    ["이 눈에 아무 증거 아니 뵈어도",""],["빈 들에 마른 풀같이",""],["구주와 함께 나 죽었으니",""],["나 가나안 땅 귀한 성에",""],
+    ["어둔 밤 쉬 되리니",""],["기도하는 이 시간",""],
+    ["주님의 마음을 가진 자",""],["하나님의 은혜",""],
+    ["예수 우리 왕이여",""],["주님은 산 같아서",""],["주를 앙망하는 자",""],["내 평생 소원 이것뿐",""],
+    ["나 무엇과도 주님을 바꾸지 않으리",""],["목마른 사슴",""],["나의 안에 거하라",""],["광야를 지나며",""],
+    ["주님 다시 오실 때까지",""],["선한 능력으로",""],["부흥",""],
+    ["좋으신 하나님",""],["예수 안에 소망 있네",""],["오직 예수뿐이네",""],["너 근심 걱정 말아라",""],
+    ["당신은 사랑받기 위해 태어난 사람",""],["하늘 위에 주님 밖에",""],
+    ["야곱의 축복",""],["주님 손 잡고 일어서세요",""],["아침 해가 돋을 때",""],["멀리 멀리 갔더니",""],["죄에서 자유를 얻게 함은",""],["실로암",""],["나는 예배자입니다",""],["축복의 통로",""],["꽃들도",""],["요게벳의 노래",""],["물이 바다 덮음 같이",""],["예수 열방의 소망",""],["마지막 날에",""],["하나님의 사랑을 사모하는 자",""],["주님 내가 여기 있사오니",""],["내가 매일 기쁘게",""],["예수 나의 첫사랑 되시네",""],["날 구원하신 주 감사",""],["주의 이름 높이며",""],["하나님은 너를 지키시는 자",""]
+  ],
+  "성경 66권": [
+    ["창세기",""],["출애굽기",""],["레위기",""],["민수기",""],
+    ["신명기",""],["여호수아서",""],["사사기",""],["룻기",""],
+    ["사무엘상",""],["사무엘하",""],["열왕기상",""],["열왕기하",""],
+    ["역대상",""],["역대하",""],["에스라서",""],["느헤미야서",""],
+    ["에스더서",""],["욥기",""],["시편",""],["잠언",""],
+    ["전도서",""],["아가",""],["이사야서",""],["예레미야서",""],
+    ["예레미야애가",""],["에스겔서",""],["다니엘서",""],["호세아서",""],
+    ["요엘",""],["아모스서",""],["오바댜",""],["요나서",""],
+    ["미가",""],["나훔",""],["하박국",""],["스바냐",""],
+    ["학개",""],["스가랴",""],["말라기",""],["마태복음",""],
+    ["마가복음",""],["누가복음",""],["요한복음",""],["사도행전",""],
+    ["로마서",""],["고린도전서",""],["고린도후서",""],["갈라디아서",""],
+    ["에베소서",""],["빌립보서",""],["골로새서",""],["데살로니가전서",""],
+    ["데살로니가후서",""],["디모데전서",""],["디모데후서",""],["디도서",""],
+    ["빌레몬서",""],["히브리서",""],["야고보서",""],["베드로전서",""],
+    ["베드로후서",""],["요한일서",""],["요한이서",""],["요한삼서",""],
+    ["유다서",""],["요한계시록",""]
+  ],
+  "성경 속 동물": [
+    ["사자",""],["나귀",""],["나귀 새끼",""],["들나귀",""],
+    ["비둘기",""],["산비둘기",""],["까마귀",""],["메추라기",""],
+    ["뱀",""],["불뱀",""],["양",""],["염소",""],
+    ["낙타",""],["돼지",""],["돼지 떼",""],["개구리",""],
+    ["메뚜기",""],["큰 물고기",""],["독사",""],["송아지",""],
+    ["숫양",""],["어린 양",""],["곰",""],["여우",""],
+    ["독수리",""],["참새",""],["닭",""],["말",""],
+    ["흰 말",""],["소",""],["황소",""],["노새",""],
+    ["이리",""],["개",""],["벌",""],["파리",""],
+    ["레비아단",""],["베헤못",""],["사슴",""],["표범",""],
+    ["쥐",""],["전갈",""],["타조",""],["공작",""],
+    ["올빼미",""],["솔개",""],["개미",""],["용",""]
+  ],
+  "성경 속 음식": [
+    ["만나",""],["누룩 없는 떡",""],["팥죽",""],["꿀",""],
+    ["석청",""],["석류",""],["무화과",""],["포도",""],
+    ["건포도",""],["건포도 떡",""],["포도주",""],["포도즙",""],
+    ["신 포도주",""],["식초",""],["떡",""],["보리떡",""],
+    ["물고기 구이",""],["물고기 두 마리",""],["쓴 나물",""],["어린 양 고기",""],
+    ["올리브기름",""],["올리브 열매",""],["젖과 꿀",""],["엉긴 젖",""],
+    ["채소",""],["콩",""],["오이와 참외",""],["부추와 마늘",""],
+    ["양파",""],["밀",""],["보리",""],["밀 이삭",""],
+    ["볶은 곡식",""],["아몬드",""],["숯불에 구운 떡",""],["살진 송아지",""],
+    ["마른 떡",""],["무화과 뭉치",""]
+  ],
+  "신앙 용어": [
+    ["은혜",""],["회개",""],["구원",""],["칭의",""],
+    ["성화",""],["삼위일체",""],["속죄",""],["재림",""],
+    ["언약",""],["거듭남",""],["성령 충만",""],["십일조",""],
+    ["안식일",""],["소명",""],["섭리",""],["예정",""],
+    ["긍휼",""],["화목",""],["중생",""],["믿음",""],
+    ["소망",""],["사랑",""],["복음",""],["전도",""],
+    ["선교",""],["경배",""],["순종",""],["헌신",""],
+    ["고난",""],["천국",""],["지옥",""],["영생",""],
+    ["죄",""],["율법",""],["은사",""],["성육신",""],
+    ["대속",""],["자비",""],["평강",""],["기쁨",""],
+    ["인내",""],["온유",""],["절제",""],["충성",""],
+    ["화평",""],["겸손",""],["감사",""],["찬양",""],
+    ["기도",""],["금식",""],["예배",""],["묵상",""],
+    ["말씀",""],["계시",""],["영감",""],["창조",""],
+    ["타락",""],["구속",""],["심판",""],["종말",""],
+    ["보혈",""],["중보",""],["성결",""],["경건",""],
+    ["거룩",""],["영광",""],["간구",""],["서원",""],
+    ["방언",""],["예언",""],["치유",""],["기적",""],
+    ["축복",""],["회심",""],["부르심",""],["제자도",""],
+    ["선택",""],["영화",""],["청지기",""],["양심",""],
+    ["분별",""],["유혹",""],["연단",""],["핍박",""],
+    ["순교",""],["우상숭배",""],["사도신경",""],["원죄",""],
+    ["자유의지",""],["성령의 인도",""],["하나님 나라",""],["하나님의 형상",""],
+    ["메시아",""],["그리스도",""],["교리",""],["신조",""],
+    ["구속자",""],["동행",""],["회복",""],["기름 부으심",""]
+  ],
+  "성경 속 직업": [["목자",""],["어부",""],["세리",""],["제사장",""],["대제사장",""],["레위인",""],["서기관",""],["바리새인",""],["사두개인",""],["율법교사",""],["선지자",""],["왕",""],["왕비",""],["총리",""],["술 맡은 관원",""],["떡 굽는 관원",""],["토기장이",""],["목수",""],["장막 만드는 사람",""],["백부장",""],["군병",""],["문지기",""],["파수꾼",""],["포도원 농부",""],["품꾼",""],["농부",""],["사냥꾼",""],["대장장이",""],["석수",""],["자색 옷감 장사",""],["무두장이",""],["의사",""],["사사",""],["종",""],["선원",""],["유모",""],["산파",""],["악사",""],["점술가",""],["상인",""],["환전상",""],["비둘기 파는 사람",""],["재판관",""],["간수",""],["사도",""],["전도자",""]],
+  "성경 속 숫자": [["3일",""],["7일",""],["40일",""],["40년",""],["12지파",""],["열두 제자",""],["12광주리",""],["7광주리",""],["5천 명",""],["4천 명",""],["666",""],["70번씩 7번",""],["닭 울기 전 세 번",""],["300명",""],["다섯 개의 돌",""],["30세",""],["7년 풍년 7년 흉년",""],["969세",""],["100세",""],["120년",""],["70년",""],["99마리 양",""],["일곱 교회",""],["144000",""],["천 년",""],["50일",""],["방주의 8명",""],["일곱 바퀴",""],["일곱 번 씻음",""],["3층",""],["4복음서",""],["구약 39권",""],["신약 27권",""],["하루 세 번 기도",""],["둘씩 짝지어",""]]
+};
+
+(function(){
+'use strict';
+const CATS=['전체',...Object.keys(WORDS)];
+const app=document.getElementById('app');
+let cfg={n:5,liars:1,cat:'전체',mode:'일반'};
+const MODES=['일반','바보'];
+const MODE_DESC={'일반':'라이어는 제시어 없이 카테고리만 알아요','바보':'라이어도 비슷한 다른 단어를 받아요. 본인이 라이어인지 몰라요'};
+const maxLiars=n=>n>=10?3:n>=6?2:1;
+const gridCls=()=>cfg.n>9?'grid g4':'grid';
+try{const s=JSON.parse(localStorage.getItem('liarCfg')||'null');if(s&&s.n>=3&&s.n<=15){cfg={n:s.n|0,liars:Math.min(Math.max(s.liars|0,1),maxLiars(s.n)),cat:CATS.includes(s.cat)?s.cat:'전체',mode:MODES.includes(s.mode)?s.mode:'일반'};}}catch(e){}
+function save(){try{localStorage.setItem('liarCfg',JSON.stringify(cfg));}catch(e){}}
+const used=new Set(); // session-used words
+let g=null; // game state
+const rnd=n=>Math.floor(Math.random()*n);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function pickWord(){
+  let pool=[];
+  const cats=cfg.cat==='전체'?Object.keys(WORDS):[cfg.cat];
+  cats.forEach(c=>WORDS[c].forEach(([w,v])=>pool.push({w,v,c})));
+  let fresh=pool.filter(x=>!used.has(x.w));
+  if(!fresh.length){pool.forEach(x=>used.delete(x.w));fresh=pool;}
+  const p=fresh[rnd(fresh.length)];
+  used.add(p.w);
+  if(cfg.mode==='바보'){const others=WORDS[p.c].filter(([w])=>w!==p.w);if(others.length)p.fool=others[rnd(others.length)][0];}
+  return p;
+}
+function startGame(){
+  const p=pickWord();
+  const ids=[...Array(cfg.n).keys()];
+  const liars=[];
+  for(let i=0;i<cfg.liars;i++){liars.push(ids.splice(rnd(ids.length),1)[0]);}
+  g={word:p.w,fool:cfg.mode==='바보'&&p.fool?p.fool:null,verse:p.v,cat:p.c,liars:liars.sort((a,b)=>a-b),i:0,first:rnd(cfg.n),sel:[],caught:false,guess:null,};
+  coverScreen();
+}
+function set(html){app.innerHTML='<div class="screen">'+html+'</div>';window.scrollTo(0,0);}
+function on(id,fn){const e=document.getElementById(id);if(e)e.onclick=fn;return e;}
+
+/* in-page dialog */
+function dialog(msg,okText,onOk){
+  const m=document.createElement('div');m.className='mask';
+  m.innerHTML='<div class="dlg"><div style="font-size:20px;font-weight:700">'+esc(msg)+'</div><button class="btn" id="dOk">'+esc(okText)+'</button><button class="btn ghost" id="dNo">취소</button></div>';
+  document.body.appendChild(m);
+  m.querySelector('#dNo').onclick=()=>m.remove();
+  m.querySelector('#dOk').onclick=()=>{m.remove();onOk();};
+}
+function homeBtn(){return '<div class="topbar"><button class="small" id="home">처음으로</button></div>';}
+function bindHome(){on('home',()=>dialog('게임을 중단하고 설정 화면으로 돌아갈까요?','돌아가기',setupScreen));}
+
+/* 1. setup */
+function setupScreen(){
+  g=null;
+  set(`
+  <h1>📖 성경 라이어 게임</h1>
+  <p class="sub">폰 한 대로 함께 즐기는 말씀 게임</p>
+  <div class="card"><div class="label">인원 수</div>
+    <div class="row stepper"><button id="nm">−</button><div class="val" id="nv"></div><button id="np">+</button></div></div>
+  <div class="card"><div class="label">라이어 수 <span class="note">(2명은 6인 이상, 3명은 10인 이상)</span></div>
+    <div class="chips"><button class="chip" id="l1">1명</button><button class="chip" id="l2">2명</button><button class="chip" id="l3">3명</button></div></div>
+  <div class="card"><div class="label">모드</div><div class="chips"><button class="chip" id="m1">일반</button><button class="chip" id="m2">바보</button></div><div class="note" id="mdesc" style="margin-top:8px"></div></div>
+  <div class="card"><div class="label">카테고리</div><div class="chips" id="cats"></div></div>
+  <details class="card" open><summary>게임 방법</summary><ol>
+    <li>모두 제시어를 받지만 라이어만 제시어를 몰라요. (카테고리는 모두 알아요)</li>
+    <li>무작위로 정해진 첫 번째 사람부터 시계 방향으로 돌아가며 제시어를 한 문장씩 설명해요.</li>
+    <li>라이어는 들키지 않게 아는 척 설명해요.</li>
+    <li>모두 설명한 뒤 투표로 라이어를 지목해요. (라이어가 여러 명이면 그 수만큼 지목)</li>
+    <li>라이어가 잡히면 제시어를 맞힐 기회가 있어요. 맞히면 라이어 승리, 틀리면 시민 승리!</li></ol>
+    <p class="note" style="margin:8px 0 0"><b>바보 모드</b>: 라이어도 같은 카테고리의 다른 단어를 제시어로 받아서, 본인이 라이어인지 모른 채 설명해요. 라이어가 잡히면 그제서야 자신이 라이어임을 알고, 시민들의 진짜 제시어를 맞혀야 해요.</p></details>
+  <div class="spacer"></div>
+  <button class="btn olive" id="go">게임 시작</button>`);
+  const paint=()=>{
+    document.getElementById('nv').textContent=cfg.n+'명';
+    document.getElementById('nm').disabled=cfg.n<=3;
+    document.getElementById('np').disabled=cfg.n>=15;
+    if(cfg.liars>maxLiars(cfg.n))cfg.liars=maxLiars(cfg.n);
+    document.getElementById('l1').className='chip'+(cfg.liars===1?' on':'');
+    const l2=document.getElementById('l2');l2.className='chip'+(cfg.liars===2?' on':'');l2.disabled=cfg.n<6;
+    const l3=document.getElementById('l3');l3.className='chip'+(cfg.liars===3?' on':'');l3.disabled=cfg.n<10;
+    document.getElementById('m1').className='chip'+(cfg.mode==='일반'?' on':'');
+    document.getElementById('m2').className='chip'+(cfg.mode==='바보'?' on':'');
+    document.getElementById('mdesc').textContent=MODE_DESC[cfg.mode];
+    document.querySelectorAll('#cats .chip').forEach(c=>c.className='chip'+(c.dataset.c===cfg.cat?' on':''));
+    save();
+  };
+  const cats=document.getElementById('cats');
+  CATS.forEach(c=>{const b=document.createElement('button');b.className='chip';b.dataset.c=c;b.textContent=c;b.onclick=()=>{cfg.cat=c;paint();};cats.appendChild(b);});
+  on('nm',()=>{cfg.n--;paint();});on('np',()=>{cfg.n++;paint();});
+  on('l1',()=>{cfg.liars=1;paint();});on('l2',()=>{if(cfg.n>=6){cfg.liars=2;paint();}});
+  on('l3',()=>{if(cfg.n>=10){cfg.liars=3;paint();}});
+  on('m1',()=>{cfg.mode='일반';paint();});on('m2',()=>{cfg.mode='바보';paint();});
+  on('go',startGame);
+  paint();
+}
+
+/* 3. role check */
+function coverScreen(){
+  set(`${homeBtn()}
+  <div class="center">
+    <div class="big">${g.i+1}번 플레이어 차례</div>
+    <div class="warn">다른 사람은 보지 마세요</div>
+    <div class="note">${g.i+1} / ${cfg.n}</div>
+  </div>
+  <button class="btn" id="show">터치해서 확인</button>`);
+  bindHome();
+  on('show',revealScreen);
+}
+function revealScreen(){
+  const isLiar=g.liars.includes(g.i);
+  set(`<div class="topbar" style="min-height:44px"></div>
+  <div class="center">
+    <div class="label" style="margin:0">제시어</div>
+    <div class="cat">카테고리 · ${esc(g.cat)}</div>
+    <div class="wordbox">${isLiar?(g.fool?esc(g.fool):'당신은 라이어입니다'):esc(g.word)}</div>
+  </div>
+  <button class="btn" id="hide">확인했어요 · 가리고 넘기기</button>`);
+  on('hide',()=>{
+    g.i++;
+    if(g.i>=cfg.n){voteScreen();}else{coverScreen();}
+  });
+}
+
+/* 5. vote */
+function voteScreen(){
+  g.sel=[];
+  const need=cfg.liars;
+  let btns='';for(let i=0;i<cfg.n;i++)btns+=`<button class="pbtn" data-i="${i}">${i+1}번</button>`;
+  set(`${homeBtn()}
+  <h2>투표</h2>
+  <p class="note" style="text-align:center;margin:0;font-size:16px;word-break:keep-all">${g.first+1}번부터 한 사람씩 돌아가며 설명한 후 투표하세요.</p>
+  <p class="sub" style="font-size:19px;color:var(--cream)">“하나, 둘, 셋” 하면<br>동시에 라이어를 지목하세요</p>
+  <div class="card"><div class="label">가장 많은 표를 받은 사람${need>1?` (${need}명 선택)`:''}</div><div class="${gridCls()}">${btns}</div></div>
+  <div class="spacer"></div>
+  <button class="btn olive" id="rv" disabled>공개</button>`);
+  bindHome();
+  const rv=document.getElementById('rv');
+  document.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i,k=g.sel.indexOf(i);
+    if(k>=0)g.sel.splice(k,1);
+    else{if(g.sel.length>=need){if(need===1)g.sel=[];else g.sel.shift();}g.sel.push(i);}
+    document.querySelectorAll('.pbtn').forEach(x=>x.className='pbtn'+(g.sel.includes(+x.dataset.i)?' on':''));
+    rv.disabled=g.sel.length!==need;
+  });
+  rv.onclick=revealLiars;
+}
+
+/* 6. reveal */
+function revealLiars(){
+  g.caught=g.liars.every(l=>g.sel.includes(l));
+  const names=g.liars.map(l=>(l+1)+'번').join(', ');
+  let grid='';for(let i=0;i<cfg.n;i++)grid+=`<div class="pbtn ${g.liars.includes(i)?'liar':''}" style="display:flex;align-items:center;justify-content:center">${i+1}번</div>`;
+  if(g.caught){
+    set(`<div class="topbar" style="min-height:44px"></div>
+    <div class="banner">라이어를 찾았어요!</div>
+    <div class="card center"><div class="label" style="margin:0">라이어는</div><div class="big">${names}</div></div>
+    <div class="card"><div class="${gridCls()}">${grid}</div></div>
+    <button class="btn" id="nx">라이어의 정답 기회</button>`);
+    on('nx',guessScreen);
+  }else{
+    set(`<div class="topbar" style="min-height:44px"></div>
+    <div class="banner">라이어 승리!</div>
+    <div class="card center"><div class="label" style="margin:0">${g.liars.length>1&&g.sel.some(s=>g.liars.includes(s))?'라이어를 모두 찾지 못했어요. 라이어는':'라이어는'}</div><div class="big">${names}</div></div>
+    <div class="card"><div class="${gridCls()}">${grid}</div></div>
+    <button class="btn" id="nx">제시어 공개</button>`);
+    on('nx',()=>resultScreen('liar'));
+  }
+}
+function guessScreen(){
+  const pool=WORDS[g.cat].map(([w])=>w).filter(w=>w!==g.word&&w!==g.fool);
+  for(let i=pool.length-1;i>0;i--){const j=rnd(i+1);[pool[i],pool[j]]=[pool[j],pool[i]];}
+  const opts=[g.word,...pool.slice(0,5)];
+  for(let i=opts.length-1;i>0;i--){const j=rnd(i+1);[opts[i],opts[j]]=[opts[j],opts[i]];}
+  set(`<div class="topbar" style="min-height:44px"></div>
+  <h2>라이어 정답 기회</h2>
+  <p class="sub" style="font-size:19px;color:var(--cream);word-break:keep-all">라이어가 아래 6개 중에서 진짜 제시어를 골라 주세요</p>${g.fool?`<p class="note" style="text-align:center;margin:0;word-break:keep-all">라이어는 자기가 받은 단어(${esc(g.fool)})와 다른 진짜 제시어를 맞혀야 해요</p>`:''}
+  <div class="cat" style="text-align:center;margin:18px 0 0">카테고리 · ${esc(g.cat)}</div>
+  <div class="mc">${opts.map((w,i)=>`<button class="mcbtn" data-i="${i}">${esc(w)}</button>`).join('')}</div>`);
+  const btns=[...document.querySelectorAll('.mcbtn')];
+  btns.forEach((b,i)=>b.onclick=()=>{
+    btns.forEach(x=>x.disabled=true);
+    const ok=opts[i]===g.word;
+    if(ok){b.classList.add('right');b.textContent='✓ '+opts[i];}
+    else{b.classList.add('wrong');b.textContent='✗ '+opts[i];
+      const k=opts.indexOf(g.word);btns[k].classList.add('right');btns[k].textContent='✓ '+opts[k];}
+    setTimeout(()=>ok?resultScreen('liar',true):resultScreen('citizen'),1200);
+  });
+}
+
+/* 7. result */
+function resultScreen(winner,guessed){
+  const msg=winner==='citizen'?'시민 승리!':(guessed?'라이어 승리! (제시어를 맞혔어요)':'라이어 승리!');
+  set(`<div class="topbar" style="min-height:44px"></div>
+  <div class="bwrap">${sheepSVG(winner!=='citizen')}<div class="banner">${msg}</div></div>
+  <div class="card center">
+    ${g.fool?`<div class="cat">카테고리 · ${esc(g.cat)}</div>
+    <div class="label" style="margin:0">시민 제시어</div>
+    <div class="big" style="font-size:36px;word-break:keep-all">${esc(g.word)}</div>
+    <div class="cat" style="font-weight:500">라이어 제시어: ${esc(g.fool)}</div>`:`<div class="label" style="margin:0">제시어</div>
+    <div class="cat">카테고리 · ${esc(g.cat)}</div>
+    <div class="big" style="font-size:40px">${esc(g.word)}</div>`}  </div>
+  <button class="btn olive" id="again">같은 설정으로 다시</button>
+  <button class="btn ghost" id="cfgb">설정 바꾸기</button>`);
+  on('again',startGame);on('cfgb',setupScreen);
+}
+
+
+
+/* static themed background (rendered once) + static sheep for result banner */
+function buildBg(){
+  const NS='http://www.w3.org/2000/svg';
+  const sv=document.createElementNS(NS,'svg');sv.setAttribute('viewBox','0 0 300 520');sv.setAttribute('preserveAspectRatio','xMidYMax slice');
+  let sd=5;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  let h='';
+  for(let i=0;i<70;i++){const x=r()*300,y=r()*520,c=r()<.6?'#5E8442':'#86A964';h+=`<path d="M${x-3} ${y} L${x} ${y+5} L${x+3} ${y}" stroke="${c}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`}
+  for(let i=0;i<40;i++){h+=`<circle cx="${r()*300}" cy="${r()*520}" r="${6+r()*14}" fill="${r()<.5?'#739A54':'#6A914C'}" opacity=".6"/>`}
+  sv.innerHTML=h;document.getElementById('bg').appendChild(sv);
+}
+function sheepSVG(black){
+  const W=black?{f:'#2B2A28',s:'#171615',c:'#45423E'}:{f:'#F3EDDF',s:'#D6CAB0',c:'#D9CDB4'};
+  let sd=11;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  let h='<ellipse cx="0" cy="30" rx="30" ry="4" fill="#5A7E40" opacity=".5"/>';
+  [-18,-8,10,20].forEach(x=>h+=`<rect x="${x-1.6}" y="12" width="3.2" height="18" rx="1.4" fill="#2B2A28"/>`);
+  for(let a=0;a<360;a+=24){const rad=a*Math.PI/180;h+=`<circle cx="${Math.cos(rad)*30}" cy="${Math.sin(rad)*18}" r="8" fill="${W.f}" stroke="${W.s}" stroke-width="1.3"/>`}
+  h+=`<ellipse cx="0" cy="0" rx="31" ry="19" fill="${W.f}"/>`;
+  for(let i=0;i<14;i++){const x=-24+r()*48,y=-12+r()*24;h+=`<path d="M${x} ${y} a2.4 2.4 0 1 1 3 2" stroke="${W.c}" stroke-width="1" fill="none"/>`}
+  h+=`<g transform="translate(26 -10)"><ellipse cx="4" cy="-5" rx="5" ry="3" fill="#D9B49A" transform="rotate(-25 4 -5)"/><ellipse cx="13" cy="0" rx="11" ry="7.5" fill="#F1E2D0"/><circle cx="5" cy="-6" r="5" fill="${W.f}" stroke="${W.s}" stroke-width="1"/><circle cx="15" cy="-2" r="1.5" fill="#2B2A28"/><path d="M21.5 2.5 q1.5 1.2 0 2.4" stroke="#2B2A28" stroke-width="1" fill="none"/></g>`;
+  return `<svg class="bsheep" viewBox="-40 -28 94 64" aria-hidden="true" focusable="false">${h}</svg>`;
+}
+
+/* 0. landing (shown only at app open) */
+let landingEl=null,raf=0;
+function leaveLanding(){
+  if(raf){cancelAnimationFrame(raf);raf=0;}
+  if(landingEl){landingEl.remove();landingEl=null;}
+}
+function landingScreen(){
+  const NS='http://www.w3.org/2000/svg';
+  landingEl=document.createElement('div');landingEl.id='landing';
+  landingEl.innerHTML='<svg id="lsv" viewBox="0 0 300 520" preserveAspectRatio="xMidYMax slice" role="img" aria-label="풀밭의 양 떼 애니메이션"></svg><div class="lt"><div class="lt1">성경 라이어</div><div class="lt2">우리 중에 검은 양이 있다</div></div><button class="lb" id="lstart">게임 시작</button>';
+  document.body.appendChild(landingEl);
+  const sv=landingEl.querySelector('#lsv');
+  let sd=5;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  const el=(tag,at,p)=>{const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);(p||sv).appendChild(e);return e};
+  const bgG=el('g',{});
+  const sg=el('g',{transform:'translate(0 -158)'});
+
+for(let i=0;i<70;i++){const x=r()*300,y=r()*520,c=r()<.6?'#5E8442':'#86A964';el('path',{d:`M${x-3} ${y} L${x} ${y+5} L${x+3} ${y}`,stroke:c,'stroke-width':1.3,fill:'none','stroke-linecap':'round'},bgG)}
+for(let i=0;i<40;i++){el('circle',{cx:r()*300,cy:r()*520,r:6+r()*14,fill:r()<.5?'#739A54':'#6A914C',opacity:.6},bgG)}
+function sheep(cx,cy,sc,dir,black){
+ const W=black?{f:'#2B2A28',s:'#171615',c:'#45423E'}:{f:'#F3EDDF',s:'#D6CAB0',c:'#D9CDB4'};
+ const root=el('g',{transform:`translate(${cx} ${cy}) scale(${sc*dir} ${sc})`},sg);
+ el('ellipse',{cx:0,cy:30,rx:30,ry:4,fill:'#5A7E40',opacity:.5},root);
+ [-18,-8,10,20].forEach(x=>el('rect',{x:x-1.6,y:12,width:3.2,height:18,rx:1.4,fill:'#2B2A28'},root));
+ const pts=[];for(let a=0;a<360;a+=24){const rad=a*Math.PI/180;pts.push([Math.cos(rad)*30,Math.sin(rad)*18])}
+ pts.forEach(p=>el('circle',{cx:p[0],cy:p[1],r:8,fill:W.f,stroke:W.s,'stroke-width':1.3},root));
+ el('ellipse',{cx:0,cy:0,rx:31,ry:19,fill:W.f},root);
+ for(let i=0;i<14;i++){const x=-24+r()*48,y=-12+r()*24;el('path',{d:`M${x} ${y} a2.4 2.4 0 1 1 3 2`,stroke:W.c,'stroke-width':1,fill:'none'},root)}
+ const pivot=el('g',{transform:'translate(26 -10)'},root);
+ const head=el('g',{},pivot);
+ const side=el('g',{},head);
+ el('ellipse',{cx:4,cy:-5,rx:5,ry:3,fill:'#D9B49A',transform:'rotate(-25 4 -5)'},side);
+ el('ellipse',{cx:13,cy:0,rx:11,ry:7.5,fill:'#F1E2D0'},side);
+ el('circle',{cx:5,cy:-6,r:5,fill:W.f,stroke:W.s,'stroke-width':1},side);
+ el('circle',{cx:15,cy:-2,r:1.5,fill:'#2B2A28'},side);
+ el('path',{d:'M21.5 2.5 q1.5 1.2 0 2.4',stroke:'#2B2A28','stroke-width':1,fill:'none'},side);
+ const front=el('g',{opacity:0},head);
+ el('ellipse',{cx:-4,cy:-6,rx:6,ry:3,fill:'#D9B49A',transform:'rotate(20 -4 -6)'},front);
+ el('ellipse',{cx:20,cy:-6,rx:6,ry:3,fill:'#D9B49A',transform:'rotate(-20 20 -6)'},front);
+ el('ellipse',{cx:8,cy:0,rx:9,ry:11,fill:'#F1E2D0'},front);
+ el('circle',{cx:8,cy:-9,r:5,fill:W.f,stroke:W.s,'stroke-width':1},front);
+ el('circle',{cx:4.5,cy:-1,r:1.5,fill:'#2B2A28'},front);el('circle',{cx:11.5,cy:-1,r:1.5,fill:'#2B2A28'},front);
+ el('path',{d:'M8 4 v2 M8 6 l-2 1.5 M8 6 l2 1.5',stroke:'#2B2A28','stroke-width':1,fill:'none','stroke-linecap':'round'},front);
+ const drop=el('path',{d:'M24 -14 q-3 4 0 6 q3 -2 0 -6',fill:'#9AD4F2'},front);
+ return {head,side,front,drop};
+}
+const S=[
+ {o:sheep(62,392,.72,1,false),ph:0},
+ {o:sheep(148,350,1,1,false),ph:1600},
+ {o:sheep(72,470,1,1,false),ph:800},
+ {o:sheep(232,478,1,-1,false),ph:2400}
+];
+const B=sheep(230,398,1,-1,true);
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const t0=performance.now();
+  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+function frame(){const t=reduce?0:performance.now()-t0;raf=0;
+ S.forEach(s=>{const c=(t+s.ph)%4600;let a;if(c<1400)a=0;else if(c<1900)a=ease((c-1400)/500)*58;else if(c<4100)a=58;else a=58*(1-ease((c-4100)/500));
+  const chew=(c>1900&&c<4100)?Math.sin(t/110)*1.2:0;s.o.head.setAttribute('transform',`rotate(${a}) translate(0 ${chew})`)});
+ const c=t%6600;let mode='l';if(c<1300)mode='l';else if(c<1900)mode='r';else if(c<2300)mode='l';else if(c<2700)mode='r';else mode='f';
+ B.side.setAttribute('opacity',mode==='f'?0:1);B.front.setAttribute('opacity',mode==='f'?1:0);
+ B.side.setAttribute('transform',mode==='r'?'translate(26 0) scale(-1 1)':'');
+ B.head.setAttribute('transform',mode==='f'?'translate(-6 -2)':'');
+ B.drop.setAttribute('opacity',mode==='f'&&(t>>8)%4<3?1:0);
+ if(!reduce&&landingEl)raf=requestAnimationFrame(frame)}
+  frame();
+  document.getElementById('lstart').onclick=()=>{leaveLanding();setupScreen();};
+}
+
+buildBg();
+landingScreen();
+})();
+</script>
+</body>
+</html>
