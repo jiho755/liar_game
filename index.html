@@ -415,6 +415,8 @@ document.addEventListener('visibilitychange',function(){
 });
 var sb=btn();if(sb)sb.addEventListener('click',function(){setMuted(!muted);});
 paint();
+/* 앱(WebView)은 자동재생이 허용돼 있으므로, 켜자마자 소리를 시도. 브라우저는 막으면 suspended 상태로 두었다가 첫 터치에서 재개됨 */
+if(!muted){try{if(ensure()){resume();applyScene();}}catch(e){}}
 })();
 </script>
 <script>
