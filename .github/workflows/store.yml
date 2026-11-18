@@ -13,6 +13,11 @@ on:
         description: 'versionName (비우면 1.0.<run_number>)'
         required: false
         default: ''
+      real_ads:
+        description: '진짜 AdMob 전면 광고 ID 사용 (체크 안 하면 구글 테스트 광고. 태그(v*) 푸시는 항상 테스트 광고)'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -57,7 +62,25 @@ jobs:
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
           echo "versionCode=$CODE versionName=$NAME"
 
-      - name: Prepare store www (loader 제거 + 로컬 폰트)
+      - name: Choose AdMob interstitial ID
+        id: ads
+        env:
+          REAL_ADS: ${{ github.event.inputs.real_ads }}
+        run: |
+          set -euo pipefail
+          TEST_ID="ca-app-pub-3940256099942544/1033173712"
+          REAL_ID="ca-app-pub-9944205919298185/5774072327"
+          if [ "${GITHUB_EVENT_NAME:-}" = "workflow_dispatch" ] && [ "${REAL_ADS:-}" = "true" ]; then
+            echo "id=$REAL_ID" >> "$GITHUB_OUTPUT"
+            echo "::notice::AdMob 전면 광고: 진짜 광고 ID 사용 ($REAL_ID)"
+          else
+            echo "id=$TEST_ID" >> "$GITHUB_OUTPUT"
+            echo "::notice::AdMob 전면 광고: 구글 테스트 광고 ID 사용 ($TEST_ID) - 스토어 제출용 진짜 광고는 real_ads 를 체크하고 수동 실행"
+          fi
+
+      - name: Prepare store www (loader 제거 + 로컬 폰트 + 광고 설정)
+        env:
+          ADMOB_INTERSTITIAL_ID: ${{ steps.ads.outputs.id }}
         run: bash store/prepare.sh
 
       - name: Generate Capacitor Android project
@@ -66,15 +89,50 @@ jobs:
           mkdir app && cd app
           npm init -y >/dev/null
           npm i @capacitor/core@^8 @capacitor/cli@^8 @capacitor/android@^8
+          # AdMob 플러그인 (Capacitor 8.5+ 필요, 8.4.2 는 README 기준 Capacitor 8 대응). 스토어 빌드 전용.
+          npm i @capacitor-community/admob@^8.4.2
           mkdir www && cp -r ../store/www/. www/
           npx cap init "$APP_NAME" "$APP_ID" --web-dir www
           npx cap add android
           npm i -D @capacitor/assets
           npx @capacitor/assets generate --android --assetPath ../assets
           npx cap sync android
+          grep -q "capacitor-community-admob" android/capacitor.settings.gradle || { echo "::error::AdMob 플러그인이 android 프로젝트에 연결되지 않았습니다"; exit 1; }
           # kotlin 중복 클래스 충돌 회피 (android.yml 과 동일)
           printf "\ndependencies {\n    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')\n}\n" >> android/app/build.gradle
           cat capacitor.config.json
+
+      - name: Inject AdMob app id + AD_ID permission into AndroidManifest
+        working-directory: app/android
+        env:
+          ADMOB_APP_ID: ca-app-pub-9944205919298185~2722909717
+        run: |
+          set -euo pipefail
+          python3 - "$ADMOB_APP_ID" <<'PY'
+          import re, sys
+          app_id = sys.argv[1]
+          p = 'app/src/main/AndroidManifest.xml'
+          s = open(p, encoding='utf-8').read()
+          meta = '<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="%s"/>' % app_id
+          perm = '<uses-permission android:name="com.google.android.gms.permission.AD_ID"/>'
+          if 'com.google.android.gms.ads.APPLICATION_ID' not in s:
+              m = re.search(r'<application\b[^>]*>', s)
+              if not m or m.group(0).endswith('/>'):
+                  sys.exit('<application> 태그를 찾지 못했습니다')
+              s = s[:m.end()] + '\n        ' + meta + s[m.end():]
+          if 'com.google.android.gms.permission.AD_ID' not in s:
+              m = re.search(r'</application>', s)
+              if not m:
+                  sys.exit('</application> 태그를 찾지 못했습니다')
+              s = s[:m.end()] + '\n\n    ' + perm + s[m.end():]
+          open(p, 'w', encoding='utf-8').write(s)
+          PY
+          cat app/src/main/AndroidManifest.xml
+          M=app/src/main/AndroidManifest.xml
+          grep -qF 'android:name="com.google.android.gms.ads.APPLICATION_ID"' "$M" || { echo "::error::APPLICATION_ID meta-data 주입 실패" >&2; exit 1; }
+          grep -qF "android:value=\"${ADMOB_APP_ID}\"" "$M" || { echo "::error::AdMob 앱 ID 값 확인 실패" >&2; exit 1; }
+          grep -qF 'android:name="com.google.android.gms.permission.AD_ID"' "$M" || { echo "::error::AD_ID 권한 주입 실패" >&2; exit 1; }
+          python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse('$M')" || { echo "::error::AndroidManifest.xml 이 올바른 XML 이 아닙니다" >&2; exit 1; }
 
       - name: Set versionCode / versionName / targetSdk
         working-directory: app/android
@@ -137,10 +195,12 @@ jobs:
           ./gradlew bundleRelease --no-daemon
           AAB="$(ls app/build/outputs/bundle/release/*.aab | head -1)"
           mkdir -p "$GITHUB_WORKSPACE/out"
+          ADTAG=""
+          if [ "${{ steps.ads.outputs.id }}" != "ca-app-pub-9944205919298185/5774072327" ]; then ADTAG="-TESTADS"; fi
           if [ "${{ steps.sign.outputs.signed }}" = "true" ]; then
-            OUT="$GITHUB_WORKSPACE/out/bible-liar-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}-signed.aab"
+            OUT="$GITHUB_WORKSPACE/out/bible-liar-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}${ADTAG}-signed.aab"
           else
-            OUT="$GITHUB_WORKSPACE/out/bible-liar-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}-UNSIGNED.aab"
+            OUT="$GITHUB_WORKSPACE/out/bible-liar-${{ steps.ver.outputs.name }}-${{ steps.ver.outputs.code }}${ADTAG}-UNSIGNED.aab"
             echo "::warning::UNSIGNED AAB 입니다 (플레이 스토어 업로드 불가)."
           fi
           cp "$AAB" "$OUT"

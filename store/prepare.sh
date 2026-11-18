@@ -3,6 +3,8 @@
 #  - 루트 index.html 은 건드리지 않고 읽기만 한다.
 #  - (a) 상단의 자동 업데이트 로더(<script> ... jiho755.github.io ...)를 제거
 #  - (b) Google Fonts <link> 를 지우고 store/www/fonts 의 로컬 woff2 @font-face 로 교체
+#  - (c) 전면 광고 설정 window.__LIAR_ADS__ 주입 (이 스크립트가 만드는 store/www/index.html 에만. 루트 index.html·Pages·디버그 APK 에는 광고가 없다)
+#      ADMOB_INTERSTITIAL_ID 환경변수(기본값 = 구글 테스트 전면 광고 ID)를 사용한다.
 #  - 폰트는 npm 패키지 @fontsource/jua, @fontsource/noto-sans-kr (SIL OFL 1.1) 에서 가져온다.
 set -euo pipefail
 
@@ -13,6 +15,13 @@ OUT_DIR="$SCRIPT_DIR/www"
 FONT_DIR="$OUT_DIR/fonts"
 FONTSOURCE_JUA_VERSION="${FONTSOURCE_JUA_VERSION:-5.3.0}"
 FONTSOURCE_NOTO_VERSION="${FONTSOURCE_NOTO_VERSION:-5.3.1}"
+# 구글 공식 테스트 전면 광고 ID (실제 ID 는 store.yml 의 real_ads 입력으로만 사용)
+ADMOB_INTERSTITIAL_ID="${ADMOB_INTERSTITIAL_ID:-ca-app-pub-3940256099942544/1033173712}"
+export ADMOB_INTERSTITIAL_ID
+if [[ ! "$ADMOB_INTERSTITIAL_ID" =~ ^ca-app-pub-[0-9]{16}/[0-9]{10}$ ]]; then
+  echo "ADMOB_INTERSTITIAL_ID 형식이 올바르지 않습니다 (ca-app-pub-0000000000000000/0000000000): $ADMOB_INTERSTITIAL_ID" >&2
+  exit 1
+fi
 
 [ -f "$SRC" ] || { echo "index.html 을 찾을 수 없음: $SRC" >&2; exit 1; }
 command -v node >/dev/null || { echo "node 가 필요합니다" >&2; exit 1; }
@@ -105,11 +114,22 @@ if (titleEnd < 0) { console.error('<title> 을 찾지 못했습니다'); process
 const ins = titleEnd + '</title>'.length;
 html = html.slice(0, ins) + '\n' + block + html.slice(ins).replace(/^\n/, '');
 
+// (c) 광고 설정 주입: 광고 모듈(<script id="liar-ads">)보다 앞(<head>)에 둔다
+const adId = process.env.ADMOB_INTERSTITIAL_ID;
+if (!/^ca-app-pub-\d{16}\/\d{10}$/.test(adId || '')) { console.error('잘못된 ADMOB_INTERSTITIAL_ID'); process.exit(1); }
+if (!html.includes('<script id="liar-ads">')) { console.error('광고 모듈(<script id="liar-ads">)을 찾지 못했습니다'); process.exit(1); }
+const adTag = '<script>window.__LIAR_ADS__={interstitial:' + JSON.stringify(adId) + '};</script>\n';
+const ins2 = html.indexOf('</head>');
+if (ins2 < 0) { console.error('</head> 를 찾지 못했습니다'); process.exit(1); }
+html = html.slice(0, ins2) + adTag + html.slice(ins2);
+if (html.indexOf('__LIAR_ADS__={') > html.indexOf('<script id="liar-ads">')) { console.error('광고 설정이 광고 모듈보다 뒤에 있습니다'); process.exit(1); }
+
 // 최종 검증
 for (const bad of ['googleapis.com', 'gstatic.com', 'jiho755.github.io']) {
   if (html.includes(bad)) { console.error('변환 후에도 남아 있음: ' + bad); process.exit(1); }
 }
 fs.writeFileSync(out, html);
+console.log('[prepare] 광고 전면 ID: ' + adId);
 console.log('[prepare] 작성: ' + out + ' (' + html.length + ' bytes)');
 NODE
 

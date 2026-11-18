@@ -419,6 +419,124 @@ paint();
 if(!muted){try{if(ensure()){resume();applyScene();}}catch(e){}}
 })();
 </script>
+<script id="liar-ads">
+/* 광고 모듈 (스토어 빌드 전용). window.__LIAR_ADS__ 와 AdMob 플러그인이 모두 있을 때만 동작하고,
+   그렇지 않으면 아무것도 하지 않는다(window.LiarAds 도 만들지 않음). 모든 호출은 try/catch, 실패는 조용히 무시. */
+(function(){
+'use strict';
+try{
+var W=window,CFG=W.__LIAR_ADS__;
+var P=W.Capacitor&&W.Capacitor.Plugins&&W.Capacitor.Plugins.AdMob;
+if(!CFG||typeof CFG.interstitial!=='string'||!CFG.interstitial||!P)return;
+var ID=CFG.interstitial;
+var SHOW_WAIT=4000,SHOW_MAX=90000,STALE=50*60000;
+var games=0; /* 결과 화면에서 '다시/설정 바꾸기'를 눌러 끝낸 판 수 */
+var state='idle',attempts=0,ready=false,readyAt=0,loading=false,loadFails=0,pending=null,retryT=0;
+function now(){return Date.now();}
+function call(name,opts){
+  try{var r=P[name](opts);return r&&typeof r.then==='function'?r:Promise.resolve(r);}
+  catch(e){return Promise.reject(e);}
+}
+function listen(ev,fn){try{var r=P.addListener(ev,function(){try{fn.apply(null,arguments);}catch(e){}});if(r&&r.catch)r.catch(function(){});}catch(e){}}
+
+/* ---- 동의(UMP) -> 초기화 -> 미리 불러오기 ---- */
+function init(){
+  if(state!=='idle'||attempts>=3)return;
+  state='busy';attempts++;
+  call('requestConsentInfo',{}).then(function(info){
+    if(info&&info.isConsentFormAvailable&&info.status==='REQUIRED'){
+      return call('showConsentForm').then(function(i2){return i2||info;});
+    }
+    return info;
+  }).then(function(info){
+    if(info&&info.canRequestAds===false){state='dead';return;}
+    return call('initialize',{}).then(function(){},function(){}).then(function(){state='ready';preload();});
+  }).catch(function(){if(state==='busy')state='idle';});
+}
+function preload(){
+  try{
+    if(state!=='ready'||ready||loading)return;
+    loading=true;
+    call('prepareInterstitial',{adId:ID}).then(function(){loading=false;loadFails=0;ready=true;readyAt=now();},
+      function(){loading=false;ready=false;loadFails++;
+        if(loadFails<=3){clearTimeout(retryT);retryT=setTimeout(preload,loadFails*20000);}});
+  }catch(e){loading=false;}
+}
+
+/* ---- 게임 음악 음소거/복원 (LiarAudio 가 있을 때만) ---- */
+function muteAudio(){
+  var st={by:false};
+  try{
+    var LA=W.LiarAudio;
+    if(LA&&typeof LA.setMuted==='function'&&typeof LA.isMuted==='function'&&!LA.isMuted()){
+      var saved=null;try{saved=localStorage.getItem('liarSound');}catch(e){}
+      LA.setMuted(true);st.by=true;
+      /* 광고 중 앱이 종료돼도 음소거가 저장되지 않도록 사용자의 원래 설정값을 되돌려 둔다 */
+      try{if(saved===null)localStorage.removeItem('liarSound');else localStorage.setItem('liarSound',saved);}catch(e){}
+    }
+  }catch(e){}
+  return st;
+}
+function restoreAudio(st){
+  try{
+    if(!st||!st.by)return;
+    var LA=W.LiarAudio,sfx=LA&&LA.sfx,t=sfx&&sfx.tok;
+    if(sfx)sfx.tok=function(){};   /* 음소거 해제 시 나는 '톡' 소리를 내지 않는다 */
+    try{LA.setMuted(false);}finally{if(sfx)sfx.tok=t;}
+  }catch(e){}
+}
+
+/* ---- 노출 조건 ---- */
+function eligible(){
+  if(state!=='ready'||pending)return false;
+  if(ready&&now()-readyAt>STALE){ready=false;preload();return false;}
+  return ready;
+}
+
+/* ---- 광고 노출 후 next() 를 정확히 한 번만 실행 ---- */
+function run(next){
+  var done=false,timer=0,audio=null,p;
+  function finish(){
+    if(done)return;done=true;clearTimeout(timer);
+    if(pending===p)pending=null;
+    try{p.next();}finally{restoreAudio(audio);try{preload();}catch(e){}}
+  }
+  p={next:next,showed:false,
+     finish:finish,
+     fail:finish};
+  p.timeout=finish;
+  pending=p;
+  ready=false;
+  audio=muteAudio();
+  timer=setTimeout(p.timeout,SHOW_WAIT);
+  p.onShowed=function(){p.showed=true;clearTimeout(timer);timer=setTimeout(p.timeout,SHOW_MAX);};
+  call('showInterstitial').then(function(){},function(){p.fail();});
+}
+
+listen('interstitialAdDismissed',function(){if(pending)pending.finish();});
+listen('interstitialAdFailedToShow',function(){if(pending)pending.fail();});
+listen('interstitialAdShowed',function(){if(pending)pending.onShowed();});
+setTimeout(init,1500);
+
+W.LiarAds={
+  /* 결과 화면에 도달할 때마다 호출: 초기화 재시도/미리 불러오기만 한다 */
+  finished:function(){try{if(state==='idle')init();else preload();}catch(e){}},
+  /* 결과 화면의 '같은 설정으로 다시' / '설정 바꾸기' 탭. 광고가 없으면 즉시 next() */
+  gate:function(next){
+    var show=false;
+    try{
+      if(pending)return; /* 광고 대기/표시 중 재탭은 무시(광고가 다음 화면 위에 뒤늦게 뜨는 것 방지) */
+      games++;
+      /* 첫 판은 건너뛰고 2, 4, 6, ... 번째 판 종료 때만. 광고가 준비 안 됐으면 즉시 진행(그 판도 센다) */
+      show=(games%2===0)&&eligible();
+    }catch(e){show=false;}
+    if(!show)return next();
+    try{run(next);}catch(e){return next();}
+  }
+};
+}catch(e){}
+})();
+</script>
 <script>
 const WORDS = {
   "인물": [
@@ -684,6 +802,7 @@ const WORDS = {
 (function(){
 'use strict';
 const A=window.LiarAudio||{scene(){},start(){},sfx:{tok(){},chime(){},bonk(){},bleat(){},tada(){}}};
+const AD=window.LiarAds||{finished(){},gate(n){return n();}}; // 광고 모듈은 스토어 빌드에서만 켜짐(루트 페이지에서는 무동작)
 const CATS=['전체',...Object.keys(WORDS)];
 const app=document.getElementById('app');
 let cfg={n:5,liars:1,cat:'전체',mode:'일반'};
@@ -879,6 +998,7 @@ function guessScreen(){
 /* 7. result */
 function resultScreen(winner,guessed){
   A.scene('result');
+  AD.finished();
   if(winner==='citizen')A.sfx.tada();else if(guessed)A.sfx.bleat();
   const msg=winner==='citizen'?'시민 승리!':(guessed?'라이어 승리! (제시어를 맞혔어요)':'라이어 승리!');
   set(`<div class="topbar" style="min-height:44px"></div>
@@ -892,7 +1012,7 @@ function resultScreen(winner,guessed){
     <div class="big" style="font-size:40px">${esc(g.word)}</div>`}  </div>
   <button class="btn olive" id="again">같은 설정으로 다시</button>
   <button class="btn ghost" id="cfgb">설정 바꾸기</button>`);
-  on('again',startGame);on('cfgb',setupScreen);
+  on('again',()=>AD.gate(startGame));on('cfgb',()=>AD.gate(setupScreen));
 }
 
 
