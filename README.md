@@ -5,3 +5,4 @@
 - 플레이: https://jiho755.github.io/liar_game/
 - 3~15명, 라이어 1~3명, 일반/바보 모드, 12개 카테고리(약 1,000단어)
 - 파일 하나(`index.html`)로 동작해요.
+- 한국어/English("Bible Liar") 지원: 시작 화면과 설정 화면의 KO/EN 버튼으로 언어를 바꿀 수 있고, 선택은 기억돼요. (영어 단어 목록은 `index.html` 의 `WORDS_EN` 구간)

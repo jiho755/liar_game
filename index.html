@@ -24,9 +24,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--cream:#FFF9EC;--cream2:#E6F0D8;--green:#6F9650;--olive:#4A6A34;--ink:#3E5A2C;--ink2:#6E7F5E;--line:#E6DCC4;--liar:#2B2A28;--ok:#5E8A3E;--bad:#B5574B;--jua:'Jua','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+:root{--cream:#FFF9EC;--cream2:#E6F0D8;--green:#6F9650;--olive:#4A6A34;--ink:#3E5A2C;--ink2:#6E7F5E;--line:#E6DCC4;--liar:#2B2A28;--ok:#5E8A3E;--bad:#B5574B;--jua:'Jua','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--green);color:var(--cream);font-family:'Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:18px;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+html,body{margin:0;height:100%;background:var(--green);color:var(--cream);font-family:'Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:18px;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
 #bg{position:fixed;inset:0;z-index:0;background:var(--green);pointer-events:none;overflow:hidden}
 #bg svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #app{position:relative;z-index:1;min-height:100%;max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 20px) calc(env(safe-area-inset-left) + 16px);display:flex;flex-direction:column}
@@ -96,7 +96,7 @@ details ol{margin:4px 0 0;padding-left:22px;font-size:17px}
 .bwrap .banner{width:100%}
 .bsheep{width:70px;height:auto;display:block}
 
-#landing{position:fixed;inset:0;z-index:5;background:#6F9650;overflow:hidden;font-family:'Jua','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;-webkit-user-select:none;user-select:none}
+#landing{position:fixed;inset:0;z-index:5;background:#6F9650;overflow:hidden;font-family:'Jua','Noto Sans KR',-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;-webkit-user-select:none;user-select:none}
 #landing svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #landing .lt{position:absolute;left:0;right:0;top:13%;text-align:center;padding:0 16px;pointer-events:none}
 #landing .lt1{font-size:clamp(36px,10.5vw,46px);line-height:1.15;color:#FFF9EC;text-shadow:0 2px 0 rgba(60,90,40,.35)}
@@ -115,6 +115,18 @@ details ol{margin:4px 0 0;padding-left:22px;font-size:17px}
 #sndbtn:active{transform:scale(.94)}
 #sndbtn.off .w{display:none}#sndbtn:not(.off) .x{display:none}
 .topbar{padding-right:52px}
+#langbtn{display:none;position:fixed;z-index:9;top:calc(env(safe-area-inset-top) + 8px);left:calc(env(safe-area-inset-left) + 8px);height:44px;padding:3px;gap:2px;border-radius:99px;background:rgba(74,106,52,.55);border:1.5px solid rgba(255,249,236,.35);align-items:center}
+body[data-scr="landing"] #langbtn,body[data-scr="setup"] #langbtn{display:flex}
+#langbtn button{height:100%;min-width:31px;padding:0 6px;border-radius:99px;font-family:var(--jua);font-size:14px;line-height:1;letter-spacing:.3px;color:#FFF9EC;opacity:.85}
+#langbtn button[aria-pressed="true"]{background:#FFF9EC;color:#4A6A34;opacity:1}
+#langbtn button:active{transform:scale(.94)}
+/* English: normal word wrapping (Korean keeps word-break:keep-all) */
+html[lang="en"] [style*="keep-all"],html[lang="en"] .mcbtn,html[lang="en"] #cats .chip,html[lang="en"] .wordbox,html[lang="en"] .label{word-break:normal!important;overflow-wrap:break-word}
+html[lang="en"] .wordbox{font-size:34px}
+html[lang="en"] #cats .chip{font-size:16px;padding:8px 6px;border-radius:16px}
+html[lang="en"] .mcbtn,html[lang="en"] .wordbox,html[lang="en"] .card .big{overflow-wrap:anywhere;hyphens:auto}
+@media (max-width:370px){html[lang="en"] .mcbtn{font-size:17px;padding:10px 6px}html[lang="en"] .wordbox{font-size:30px}html[lang="en"] .card .big{font-size:32px!important}html[lang="en"] #cats .chip{font-size:14.5px;padding:8px 2px}}
+@media (max-width:340px){html[lang="en"] .mcbtn{font-size:15px;padding:10px 4px}html[lang="en"] #cats .chip{font-size:13.5px}}
 @media (max-width:380px){h1{padding:0 48px;font-size:26px;white-space:nowrap}.label{word-break:keep-all}}
 @media (max-width:340px){h1{font-size:24px}}
 </style>
@@ -124,6 +136,7 @@ details ol{margin:4px 0 0;padding-left:22px;font-size:17px}
 <body>
 <div id="bg" aria-hidden="true"></div>
 <div id="app"></div>
+<div id="langbtn" role="group" aria-label="언어 선택"><button type="button" data-l="ko" lang="ko" aria-label="한국어" aria-pressed="true">KO</button><button type="button" data-l="en" lang="en" aria-label="English" aria-pressed="false">EN</button></div>
 <button id="sndbtn" type="button" aria-label="소리 켜기/끄기" aria-pressed="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="#FFF9EC"/><g class="w" fill="none" stroke="#FFF9EC" stroke-width="1.9" stroke-linecap="round"><path d="M15.5 9.2a4.2 4.2 0 0 1 0 5.6"/><path d="M18 6.8a7.6 7.6 0 0 1 0 10.4"/></g><g class="x" fill="none" stroke="#FFF9EC" stroke-width="1.9" stroke-linecap="round"><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></svg></button>
 <script>
 /* 소리: Web Audio API로만 생성 (오디오 파일/외부 요청 없음) */
@@ -799,18 +812,143 @@ const WORDS = {
   "성경 속 숫자": [["3일",""],["7일",""],["40일",""],["40년",""],["12지파",""],["열두 제자",""],["12광주리",""],["7광주리",""],["5천 명",""],["4천 명",""],["666",""],["70번씩 7번",""],["닭 울기 전 세 번",""],["300명",""],["다섯 개의 돌",""],["30세",""],["7년 풍년 7년 흉년",""],["969세",""],["100세",""],["120년",""],["70년",""],["99마리 양",""],["일곱 교회",""],["144000",""],["천 년",""],["50일",""],["방주의 8명",""],["일곱 바퀴",""],["일곱 번 씻음",""],["3층",""],["4복음서",""],["구약 39권",""],["신약 27권",""],["하루 세 번 기도",""],["둘씩 짝지어",""]]
 };
 
+/* English word list (same shape as WORDS but keyed by internal category ids). Real data is injected between the markers. */
+/*WORDS_EN_START*/
+const WORDS_EN = {
+  "people": [["Abraham","Gen 12:1-3"],["Sarah","Gen 18:10-14"],["Isaac","Gen 22:1-14"],["Jacob","Gen 28:10-17"],["Joseph","Gen 37:3-11"],["Moses","Exod 3:1-10"],["Aaron","Exod 4:14-16"],["Joshua","Josh 1:1-9"],["Rahab","Josh 2:1-21"],["Gideon","Judg 6:11-16"],["Samson","Judg 16:28-30"],["Ruth","Ruth 1:16-17"],["Samuel","1 Sam 3:1-10"],["David","1 Sam 17:45-50"],["Goliath","1 Sam 17:4-11"],["Solomon","1 Kgs 3:5-14"],["Elijah","1 Kgs 18:36-39"],["Elisha","2 Kgs 2:9-15"],["Jonah","Jonah 1:1-17"],["Daniel","Dan 6:16-23"],["Esther","Esth 4:14-16"],["Job","Job 1:20-22"],["John the Baptist","Matt 3:1-6"],["Peter","Matt 16:13-18"],["Zacchaeus","Luke 19:1-10"],["Martha","Luke 10:38-42"],["Thomas","John 20:24-29"],["Nicodemus","John 3:1-15"],["Paul","Acts 9:1-19"],["Barnabas","Acts 4:36-37"],["Adam","Gen 2:18-23"],["Eve","Gen 3:20"],["Cain","Gen 4:3-8"],["Abel","Gen 4:2-4"],["Seth","Gen 4:25-26"],["Enoch","Gen 5:21-24"],["Methuselah","Gen 5:27"],["Noah","Gen 6:9-14"],["Melchizedek","Gen 14:18-20"],["Lot","Gen 19:15-17"],["Hagar","Gen 16:7-13"],["Ishmael","Gen 21:14-20"],["Rebekah","Gen 24:15-20"],["Esau","Gen 25:29-34"],["Laban","Gen 29:21-25"],["Rachel","Gen 29:16-20"],["Leah","Gen 29:31-35"],["Judah","Gen 44:18-34"],["Potiphar","Gen 39:1-6"],["Potiphar's Wife","Gen 39:7-12"],["Jochebed","Exod 2:1-3"],["Pharaoh's Daughter","Exod 2:5-10"],["Pharaoh","Exod 5:1-2"],["Miriam","Exod 15:20-21"],["Jethro","Exod 18:17-24"],["Caleb","Num 13:30"],["Balaam","Num 22:21-30"],["Deborah","Judg 4:4-9"],["Jephthah","Judg 11:30-31"],["Naomi","Ruth 1:20-21"],["Boaz","Ruth 2:8-12"],["Hannah","1 Sam 1:10-18"],["Eli","1 Sam 1:12-17"],["Saul","1 Sam 10:1"],["Jesse","1 Sam 16:10-13"],["Jonathan","1 Sam 18:1-4"],["Michal","1 Sam 19:11-17"],["Abigail","1 Sam 25:23-31"],["Nathan","2 Sam 12:1-7"],["Bathsheba","2 Sam 11:2-5"],["Uriah","2 Sam 11:14-17"],["Absalom","2 Sam 15:1-6"],["Queen of Sheba","1 Kgs 10:1-10"],["Ahab","1 Kgs 16:30-33"],["Jezebel","1 Kgs 19:1-2"],["Widow of Zarephath","1 Kgs 17:8-16"],["Shunammite Woman","2 Kgs 4:8-17"],["Naaman","2 Kgs 5:9-14"],["Gehazi","2 Kgs 5:20-27"],["Hezekiah","2 Kgs 20:1-6"],["Josiah","2 Kgs 22:8-11"],["Nebuchadnezzar","Dan 4:28-33"],["Belshazzar","Dan 5:1-6"],["Shadrach, Meshach, Abednego","Dan 3:16-18"],["Ezra","Ezra 7:6-10"],["Nehemiah","Neh 2:17-18"],["Mordecai","Esth 4:13-14"],["Haman","Esth 7:6-10"],["King Xerxes","Esth 1:1-3"],["Isaiah","Isa 6:1-8"],["Jeremiah","Jer 1:4-10"],["Ezekiel","Ezek 37:1-10"],["Hosea","Hos 1:2-3"],["Amos","Amos 7:14-15"],["Satan","Job 1:6-12"],["Gabriel","Luke 1:26-28"],["Michael","Jude 1:9"],["Mary, Mother of Jesus","Luke 1:38"],["Joseph the Carpenter","Matt 1:18-25"],["Elizabeth","Luke 1:39-45"],["Zechariah the Priest","Luke 1:11-20"],["Simeon","Luke 2:25-32"],["Anna","Luke 2:36-38"],["King Herod","Matt 2:1-3"],["Andrew","John 1:40-42"],["James the Apostle","Mark 1:19-20"],["John the Apostle","John 13:23-25"],["Philip the Apostle","John 1:43-46"],["Nathanael","John 1:47-49"],["Matthew","Matt 9:9"],["Judas Iscariot","Matt 26:14-16"],["Matthias","Acts 1:21-26"],["Mary Magdalene","John 20:11-16"],["Pontius Pilate","Matt 27:11-14"],["Barabbas","Matt 27:15-21"],["Joseph of Arimathea","Matt 27:57-60"],["Simon of Cyrene","Luke 23:26"],["Jairus","Mark 5:22-24"],["Samaritan Woman","John 4:7-10"],["Bartimaeus","Mark 10:46-52"],["Roman Centurion","Matt 8:5-10"],["Gamaliel","Acts 5:34-39"],["Stephen","Acts 6:8-10"],["Philip the Evangelist","Acts 8:26-31"],["Ethiopian Eunuch","Acts 8:36-38"],["Dorcas","Acts 9:36-40"],["Cornelius","Acts 10:1-4"],["King Agrippa","Acts 26:27-28"],["Silas","Acts 15:40"],["Lydia","Acts 16:14-15"],["Philippian Jailer","Acts 16:27-34"],["Eutychus","Acts 20:9-12"],["Apollos","Acts 18:24-28"],["Priscilla","Acts 18:2-3"],["Timothy","2 Tim 1:5"],["Titus","Titus 1:4-5"],["Luke","Col 4:14"],["John Mark","Acts 12:12"],["Philemon","Phlm 1:10-16"],["Onesimus","Phlm 1:10-12"]],
+  "places": [["Garden of Eden","Gen 2:8-15"],["Tower of Babel","Gen 11:1-9"],["Sodom","Gen 19:24-26"],["Egypt","Exod 1:8-14"],["Mount Sinai","Exod 19:16-20"],["Jericho","Josh 6:15-20"],["Canaan","Exod 3:8"],["Bethlehem","Luke 2:4-7"],["Nazareth","Luke 2:39-40"],["Sea of Galilee","Matt 4:18-20"],["Jordan River","Matt 3:13-17"],["Jerusalem","Ps 122:1-6"],["Gethsemane","Matt 26:36-39"],["Golgotha","John 19:17-18"],["Emmaus","Luke 24:13-16"],["Damascus","Acts 9:3-6"],["Nineveh","Jonah 3:1-5"],["Babylon","Dan 1:1-2"],["Mount Ararat","Gen 8:4"],["Patmos","Rev 1:9"],["Capernaum","Matt 4:13"],["Samaria","John 4:4-6"],["Mount Carmel","1 Kgs 18:19"],["Mount of Olives","Acts 1:12"],["Pool of Siloam","John 9:6-7"],["Bethel","Gen 28:19"],["Peniel","Gen 32:30"],["Hebron","Gen 13:18"],["Rome","Acts 28:14-16"],["Corinth","Acts 18:1"],["Ephesus","Acts 19:1"],["Philippi","Acts 16:12"],["Thessalonica","Acts 17:1"],["Athens","Acts 17:22-23"],["Antioch","Acts 11:26"],["Beersheba","Gen 21:31-33"],["Mount Moriah","Gen 22:2"],["Haran","Gen 12:4-5"],["Ur of the Chaldeans","Gen 11:31"],["Gilgal","Josh 4:19-20"],["Ai","Josh 7:2-5"],["Shiloh","1 Sam 1:3"],["Mount Tabor","Judg 4:6"],["Valley of Elah","1 Sam 17:2"],["Sychar","John 4:5"],["Jacob's Well","John 4:6"],["Bethphage","Matt 21:1"],["Bethsaida","John 1:44"],["Cana","John 2:1"],["Nain","Luke 7:11-15"],["Gerasa","Mark 5:1"],["Caesarea Philippi","Matt 16:13"],["Caesarea","Acts 10:1"],["Tarshish","Jonah 1:3"],["Land of Goshen","Gen 47:6"],["Midian","Exod 2:15"],["Mount Horeb","Exod 3:1"],["Mount Nebo","Deut 34:1"],["Moab","Ruth 1:1"],["En Gedi","1 Sam 24:1"],["Marah","Exod 15:23"],["Brook Cherith","1 Kgs 17:3-6"],["Lystra","Acts 14:8"],["Smyrna","Rev 2:8"],["Pergamum","Rev 2:12"],["Thyatira","Rev 2:18"],["Sardis","Rev 3:1"],["Philadelphia","Rev 3:7"],["Laodicea","Rev 3:14"],["New Jerusalem","Rev 21:1-2"],["Paradise","Luke 23:43"],["Armageddon","Rev 16:16"],["Solomon's Temple","1 Kgs 6:1"],["Beautiful Gate","Acts 3:2"],["Pool of Bethesda","John 5:2-9"],["Upper Room","Acts 1:13"],["Valley of the Shadow of Death","Ps 23:4"],["Judean Wilderness","Matt 3:1"],["Cave of Machpelah","Gen 23:19"],["Malta","Acts 28:1"],["Troas","Acts 16:8-10"],["Bethany","John 11:1"],["Kidron Valley","John 18:1"],["Mount Zion","Ps 2:6"],["Tyre","Matt 15:21"],["Joppa","Acts 9:36"],["Zarephath","1 Kgs 17:9"],["Palace of Susa","Esth 1:2"],["Rivers of Babylon","Ps 137:1"],["Street Called Straight","Acts 9:11"]],
+  "events": [["Six Days of Creation","Gen 1:1-31"],["Forbidden Fruit","Gen 3:1-7"],["Noah's Ark","Gen 6:13-22"],["Rainbow Covenant","Gen 9:12-17"],["Jacob's Ladder","Gen 28:12"],["Ten Plagues","Exod 12:29-31"],["Passover","Exod 12:21-27"],["Parting of the Red Sea","Exod 14:21-22"],["Ten Commandments","Exod 20:1-17"],["Elijah vs. the Prophets of Baal","1 Kgs 18:20-39"],["Fiery Furnace","Dan 3:19-27"],["Birth of Jesus","Luke 2:1-7"],["Wise Men (Magi)","Matt 2:1-11"],["Baptism of Jesus","Matt 3:13-17"],["Water into Wine","John 2:1-11"],["Feeding of the 5,000","John 6:5-13"],["Walking on Water","Matt 14:25-31"],["Raising of Lazarus","John 11:38-44"],["Transfiguration","Matt 17:1-8"],["Last Supper","Matt 26:26-29"],["The Cross","John 19:28-30"],["Resurrection","Matt 28:1-7"],["Ascension","Acts 1:9-11"],["Pentecost","Acts 2:1-4"],["Paul and Silas in Prison","Acts 16:25-26"],["Cain and Abel","Gen 4:3-8"],["Call of Abraham","Gen 12:1-4"],["Abraham's Three Visitors","Gen 18:1-5"],["Abraham Pleads for Sodom","Gen 18:23-32"],["Destruction of Sodom","Gen 19:24-25"],["Lot's Wife","Gen 19:26"],["Birth of Isaac","Gen 21:1-3"],["Sacrifice of Isaac","Gen 22:9-13"],["Esau Sells His Birthright","Gen 25:29-34"],["Jacob Steals the Blessing","Gen 27:18-29"],["Jacob Wrestles with God","Gen 32:24-30"],["Joseph's Dreams","Gen 37:5-9"],["Joseph Sold into Slavery","Gen 37:23-28"],["Pharaoh's Dreams","Gen 41:1-7"],["Joseph Rules Egypt","Gen 41:39-43"],["Joseph Meets His Brothers","Gen 45:1-5"],["Baby Moses in the Basket","Exod 2:1-10"],["Burning Bush","Exod 3:1-6"],["Pillars of Fire and Cloud","Exod 13:21-22"],["Bitter Waters of Marah","Exod 15:22-25"],["Water from the Rock","Exod 17:1-6"],["Battle with Amalek","Exod 17:8-13"],["Golden Calf","Exod 32:1-6"],["Moses' Shining Face","Exod 34:29-30"],["Twelve Spies","Num 13:25-33"],["40\u00a0Years in the Wilderness","Num 14:33-34"],["Korah's Rebellion","Num 16:31-33"],["Balaam's Talking Donkey","Num 22:28-30"],["Death of Moses","Deut 34:5-8"],["Crossing the Jordan","Josh 3:14-17"],["Fall of Jericho","Josh 6:20"],["Achan's Sin","Josh 7:20-21"],["Sun Stands Still","Josh 10:12-14"],["Gideon's 300","Judg 7:19-22"],["Samson's Hair","Judg 16:15-20"],["Philistines Capture the Ark","1 Sam 4:10-11"],["Anointing of David","1 Sam 16:11-13"],["Saul Throws a Spear at David","1 Sam 18:10-11"],["David Spares Saul","1 Sam 24:1-7"],["David Dances Before the Ark","2 Sam 6:12-15"],["Judgment of Solomon","1 Kgs 3:16-28"],["Dedication of the Temple","1 Kgs 8:22-30"],["Division of the Kingdom","1 Kgs 12:16-20"],["Elijah Fed by Ravens","1 Kgs 17:2-6"],["Still Small Voice","1 Kgs 19:11-13"],["Naboth's Vineyard","1 Kgs 21:1-16"],["Horses and Chariots of Fire","2 Kgs 2:11"],["Raising the Shunammite's Son","2 Kgs 4:32-35"],["Assyrian Army Destroyed","2 Kgs 19:35"],["Hezekiah's Sundial","2 Kgs 20:8-11"],["Babylonian Exile","2 Kgs 25:8-11"],["Cyrus's Decree of Return","Ezra 1:1-4"],["Temple Foundation Laid","Ezra 3:10-11"],["Rebuilding the Wall","Neh 6:15"],["Reading of the Law","Neh 8:1-3"],["Daniel Refuses the King's Food","Dan 1:8-16"],["Dream of the Great Statue","Dan 2:31-35"],["Writing on the Wall","Dan 5:5"],["Valley of Dry Bones","Ezek 37:1-10"],["Annunciation","Luke 1:26-35"],["Mary's Song (Magnificat)","Luke 1:46-55"],["Angels and the Shepherds","Luke 2:8-14"],["Flight to Egypt","Matt 2:13-15"],["Boy Jesus in the Temple","Luke 2:41-49"],["Temptation in the Wilderness","Matt 4:1-11"],["Sermon on the Mount","Matt 5:1-12"],["The Lord's Prayer","Matt 6:9-13"],["Paralytic Through the Roof","Mark 2:3-5"],["Centurion's Servant Healed","Matt 8:5-13"],["Calming the Storm","Mark 4:37-41"],["Gerasene Demoniac and Pigs","Mark 5:1-13"],["Woman Who Touched His Cloak","Mark 5:25-34"],["Raising Jairus's Daughter","Mark 5:35-42"],["Death of John the Baptist","Mark 6:21-28"],["Canaanite Woman's Faith","Matt 15:21-28"],["Widow of Nain's Son","Luke 7:11-15"],["Healing the Man Born Blind","John 9:1-7"],["Ten Lepers","Luke 17:11-19"],["Woman Caught in Adultery","John 8:3-11"],["Jesus Blesses the Children","Mark 10:13-16"],["Rich Young Ruler","Mark 10:17-22"],["Cleansing the Temple","John 2:13-16"],["Triumphal Entry","Matt 21:1-9"],["Cursing the Fig Tree","Mark 11:12-14"],["Washing the Disciples' Feet","John 13:3-5"],["Betrayal by Judas","Matt 26:47-50"],["Peter's Denial","Matt 26:69-75"],["Temple Curtain Torn","Matt 27:50-51"],["The Thief on the Cross","Luke 23:39-43"],["Father, Forgive Them","Luke 23:34"],["Jesus Entrusts Mary to John","John 19:26-27"],["Casting Lots for His Clothes","John 19:23-24"],["153\u00a0Fish","John 21:5-11"],["Feed My Sheep","John 21:15-17"],["Great Commission","Matt 28:18-20"],["Believers Share Everything","Acts 2:44-45"],["3,000\u00a0Baptized","Acts 2:41"],["Healing the Lame Beggar","Acts 3:6-8"],["Ananias and Sapphira","Acts 5:1-5"],["Choosing Seven Deacons","Acts 6:1-6"],["Conversion of Saul","Acts 9:3-6"],["Peter's Vision","Acts 10:9-16"],["Peter Freed from Prison","Acts 12:6-11"],["Disciples First Called Christians","Acts 11:26"],["Macedonian Call","Acts 16:9-10"],["Ephesians Burn Their Scrolls","Acts 19:18-19"],["Paul's Shipwreck","Acts 27:14-20"],["Viper on Malta","Acts 28:3-5"],["Jesus Returns","1 Thess 4:16-17"],["New Heaven and New Earth","Rev 21:1-4"],["Repentance of Nineveh","Jonah 3:5-10"],["Hagar and Ishmael Sent Away","Gen 21:14"],["Calling the First Disciples","Matt 4:18-22"],["Rejection at Nazareth","Luke 4:28-29"],["Choosing the Twelve","Luke 6:12-16"]],
+  "parables": [["Prodigal Son","Luke 15:11-32"],["Good Samaritan","Luke 10:30-37"],["Parable of the Talents","Matt 25:14-30"],["The Sower","Matt 13:3-9"],["Mustard Seed","Matt 13:31-32"],["Lost Sheep","Luke 15:4-7"],["Ten Virgins","Matt 25:1-13"],["House on the Rock","Matt 7:24-27"],["Workers in the Vineyard","Matt 20:1-16"],["Pearl of Great Price","Matt 13:45-46"],["Ark of the Covenant","Exod 25:10-22"],["Sling Stone","1 Sam 17:49"],["Bronze Serpent","Num 21:8-9"],["Moses' Staff","Exod 4:2-4"],["Ram's Horn Trumpet","Josh 6:4-5"],["Coat of Many Colors","Gen 37:3"],["Crown of Thorns","John 19:2"],["Alabaster Jar","Mark 14:3-9"],["Gideon's Fleece","Judg 6:36-40"],["Elijah's Cloak","2 Kgs 2:13-14"],["Thirty Pieces of Silver","Matt 26:14-16"],["Fishing Net","Luke 5:4-7"],["Lamp","Matt 5:14-16"],["Salt","Matt 5:13"],["Ten Minas","Luke 19:11-27"],["Barren Fig Tree","Luke 13:6-9"],["Vine and Branches","John 15:1-5"],["Rich Man and Lazarus","Luke 16:19-31"],["Unjust Judge","Luke 18:1-8"],["Wedding Feast","Matt 22:1-10"],["Great Banquet","Luke 14:16-24"],["Lost Coin","Luke 15:8-10"],["Yeast","Matt 13:33"],["Hidden Treasure","Matt 13:44"],["Wheat and Tares","Matt 13:24-30"],["Unforgiving Servant","Matt 18:23-35"],["Rich Fool","Luke 12:16-21"],["Pharisee and Tax Collector","Luke 18:9-14"],["Friend at Midnight","Luke 11:5-8"],["Dishonest Manager","Luke 16:1-8"],["Wicked Tenants","Matt 21:33-41"],["Two Sons","Matt 21:28-32"],["Sheep and Goats","Matt 25:31-46"],["Plank and Speck","Matt 7:3-5"],["New Wine, New Wineskins","Matt 9:17"],["Narrow Gate","Matt 7:13-14"],["Lilies of the Field","Matt 6:28-29"],["Birds of the Air","Matt 6:26"],["I Am the Gate","John 10:7-9"],["Good Shepherd","John 10:11-14"],["Bread of Life","John 6:35"],["Living Water","John 4:14"],["Way, Truth, and Life","John 14:6"],["Widow's Two Coins","Mark 12:41-44"],["David's Harp","1 Sam 16:23"],["Noah's Dove","Gen 8:11"],["Tree of Life","Gen 2:9"],["Garments of Skin","Gen 3:21"],["Flaming Sword","Gen 3:24"],["Smoking Firepot and Torch","Gen 15:17"],["Stone Pillow","Gen 28:11"],["Joseph's Silver Cup","Gen 44:2"],["Twelve Stones from the Jordan","Josh 4:8-9"],["Blood on the Doorposts","Exod 12:7"],["Tabernacle","Exod 25:8-9"],["Lampstand","Exod 25:31-37"],["Showbread","Exod 25:30"],["Altar of Burnt Offering","Exod 27:1-2"],["Priestly Garments","Exod 28:2-4"],["Urim and Thummim","Exod 28:30"],["Altar of Incense","Exod 30:1"],["Bronze Basin","Exod 30:18"],["Aaron's Budding Staff","Num 17:8"],["Jar of Flour and Oil","1 Kgs 17:14-16"],["Elijah's Broom Tree","1 Kgs 19:4"],["Elisha's Axe Head","2 Kgs 6:5-7"],["Jonah's Vine","Jonah 4:6"],["Seraph's Burning Coal","Isa 6:6-7"],["Potter and Clay","Jer 18:1-6"],["Saul's Armor","1 Sam 17:38-39"],["Esther's Golden Scepter","Esth 5:2"],["Haman's Gallows","Esth 7:9-10"],["Gold, Frankincense, and Myrrh","Matt 2:11"],["Star of Bethlehem","Matt 2:9"],["Manger","Luke 2:7"],["Swaddling Cloths","Luke 2:12"],["Water Jars","John 2:6-7"],["Palm Branches","John 12:13"],["Basin and Towel","John 13:4-5"],["Peter's Sword","John 18:10"],["Samaritan Woman's Water Jar","John 4:28"],["Sponge of Sour Wine","John 19:29"],["Sign on the Cross","John 19:19-20"],["Linen Burial Cloths","John 19:40"],["Hem of Jesus' Garment","Matt 9:20"],["Nail Marks","John 20:25"],["Stone Rolled Away","Mark 16:3-4"],["Tongues of Fire","Acts 2:3"],["Sheet from Heaven","Acts 10:11"],["Love Is Patient","1 Cor 13:4-7"],["Fruit of the Spirit","Gal 5:22-23"],["Armor of God","Eph 6:13-17"],["Shield of Faith","Eph 6:16"],["Sword of the Spirit","Eph 6:17"],["Seven Lampstands","Rev 1:12-13"],["Seven Seals","Rev 5:1"],["Book of Life","Rev 20:12"],["Millstone","Matt 18:6"],["Joseph's Sheaves","Gen 37:7"],["Fig Leaves","Gen 3:7"],["Babel's Bricks","Gen 11:3"],["Gideon's Jars and Torches","Judg 7:16"],["Samson's Donkey Jawbone","Judg 15:15"],["Horn of Oil","1 Sam 16:13"],["The Golden Statue","Dan 3:1"],["Jonah's Ship","Jonah 1:3-4"],["Green Pastures, Still Waters","Ps 23:2"],["Coin in the Fish's Mouth","Matt 17:27"],["Caesar's Denarius","Matt 22:19-21"],["Paul's Handkerchiefs","Acts 19:11-12"],["Keys of the Kingdom","Matt 16:19"],["Grain of Wheat","John 12:24"]],
+  "church": [["Retreat",""],["Prayer Meeting",""],["Church Bulletin",""],["Communion",""],["Intercessory Prayer",""],["Home Group",""],["Offering",""],["Sunday School",""],["Choir",""],["Worship Team",""],["Quiet Time",""],["Altar Call",""],["Youth Lock-In",""],["Revival Meeting",""],["Baptism Service",""],["Pastor",""],["Elder",""],["Church Secretary",""],["Youth Pastor",""],["Church Bus",""],["Fellowship Hall",""],["Parking Team",""],["Scripture Memory",""],["Vacation Bible School",""],["Fall Festival",""],["Easter Egg Hunt",""],["Christmas Cantata",""],["Mission Trip",""],["Deacon",""],["Worship Leader",""],["Pastor's Wife",""],["Young Adults Group",""],["Youth Group",""],["Children's Church",""],["Livestream",""],["Wednesday Night Service",""],["Sunday Worship",""],["Watch Night Service",""],["Thanksgiving Sunday",""],["Harvest Festival",""],["Christmas Caroling",""],["Bible Study",""],["Discipleship Class",""],["Welcome Team",""],["Small Group",""],["Small Group Leader",""],["Sunday School Teacher",""],["Church Pianist",""],["Love Offering",""],["Offering Envelope",""],["Benediction",""],["Sermon",""],["Pastoral Prayer",""],["Offertory",""],["Hymnal",""],["Bible Cover",""],["Coffee Hour",""],["Potluck",""],["Funeral Service",""],["Pastoral Visit",""],["Gospel Tract",""],["Street Evangelism",""],["Missionary Commissioning",""],["Bake Sale",""],["Prayer Room",""],["Prayer Walk",""],["Prayer Partner",""],["Fasting",""],["Week of Prayer",""],["Bible Journaling",""],["Bible Reading Plan",""],["Membership Class",""],["Bible Quiz Bowl",""],["Nativity Play",""],["Action Songs",""],["Campfire",""],["Small Group Breakout",""],["Testimony",""],["Sound Booth",""],["Usher",""],["Church Picnic",""],["Combined Service",""],["Confirmation Ceremony",""],["Infant Baptism",""],["Ordination Service",""],["Church Anniversary",""],["Church Camp",""],["Choir Practice",""],["Greeter",""],["Christmas Eve Candlelight",""],["Gift Drive",""],["Prayer Chain",""],["Sunday Evening Service",""],["Church Board",""],["Elders' Meeting",""],["Business Meeting",""],["Mother's Day Sunday",""],["Baby Dedication",""],["Easter Sunrise Service",""],["Good Friday Service",""]],
+  "hymns": [["Amazing Grace",""],["How Great Thou Art",""],["Nearer, My God, to Thee",""],["Jesus Loves Me",""],["What a Friend We Have in Jesus",""],["Silent Night",""],["Blessed Assurance",""],["There Is a Fountain",""],["Holy, Holy, Holy",""],["A Mighty Fortress Is Our God",""],["Joyful, Joyful, We Adore Thee",""],["Great Is Thy Faithfulness",""],["At the Cross",""],["The Old Rugged Cross",""],["Softly and Tenderly",""],["O Come, All Ye Faithful",""],["Joy to the World",""],["O Come, O Come, Emmanuel",""],["Angels We Have Heard on High",""],["The Solid Rock",""],["Jesus Calls Us",""],["In the Garden",""],["All the Way My Savior Leads Me",""],["Safe in the Arms of Jesus",""],["Have Thine Own Way, Lord",""],["When I Survey the Wondrous Cross",""],["Rock of Ages",""],["O Little Town of Bethlehem",""],["The First Noel",""],["Away in a Manger",""],["Nothing but the Blood",""],["It Is Well with My Soul",""],["Come, Thou Fount of Every Blessing",""],["The Love of God",""],["All Hail the Power of Jesus' Name",""],["Doxology",""],["Pass Me Not, O Gentle Savior",""],["Leaning on the Everlasting Arms",""],["Jesus, the Very Thought of Thee",""],["Beneath the Cross of Jesus",""],["Work, for the Night Is Coming",""],["Sweet Hour of Prayer",""],["As the Deer",""],["In Christ Alone",""],["God Will Take Care of You",""],["Be Thou My Vision",""],["Crown Him with Many Crowns",""],["Fairest Lord Jesus",""],["Abide with Me",""],["Just as I Am",""],["I Surrender All",""],["Trust and Obey",""],["Standing on the Promises",""],["To God Be the Glory",""],["Praise to the Lord, the Almighty",""],["O for a Thousand Tongues to Sing",""],["And Can It Be",""],["Christ the Lord Is Risen Today",""],["Count Your Blessings",""],["Love Divine, All Loves Excelling",""],["Be Still, My Soul",""],["I Need Thee Every Hour",""],["Jesus Paid It All",""],["Victory in Jesus",""],["Because He Lives",""],["Shall We Gather at the River",""],["This Is My Father's World",""],["All Creatures of Our God and King",""],["Take My Life and Let It Be",""],["I'll Fly Away",""],["Onward, Christian Soldiers",""],["Blest Be the Tie That Binds",""],["The Church's One Foundation",""],["Were You There",""],["Hark! The Herald Angels Sing",""],["Go Tell It on the Mountain",""],["What Child Is This",""],["Swing Low, Sweet Chariot",""],["This Little Light of Mine",""],["He's Got the Whole World in His Hands",""],["Deep and Wide",""],["Here I Am to Worship",""],["Shout to the Lord",""],["10,000\u00a0Reasons",""],["Oceans",""],["Way Maker",""],["Goodness of God",""],["Build My Life",""],["Great Are You Lord",""],["What a Beautiful Name",""],["Reckless Love",""],["Good Good Father",""],["Open the Eyes of My Heart",""],["Blessed Be Your Name",""],["Mighty to Save",""],["Revelation Song",""],["Living Hope",""],["Lord, I Lift Your Name on High",""],["Shine, Jesus, Shine",""],["Agnus Dei",""]],
+  "books": [["Genesis",""],["Exodus",""],["Leviticus",""],["Numbers",""],["Deuteronomy",""],["Joshua",""],["Judges",""],["Ruth",""],["1\u00a0Samuel",""],["2\u00a0Samuel",""],["1\u00a0Kings",""],["2\u00a0Kings",""],["1\u00a0Chronicles",""],["2\u00a0Chronicles",""],["Ezra",""],["Nehemiah",""],["Esther",""],["Job",""],["Psalms",""],["Proverbs",""],["Ecclesiastes",""],["Song of Songs",""],["Isaiah",""],["Jeremiah",""],["Lamentations",""],["Ezekiel",""],["Daniel",""],["Hosea",""],["Joel",""],["Amos",""],["Obadiah",""],["Jonah",""],["Micah",""],["Nahum",""],["Habakkuk",""],["Zephaniah",""],["Haggai",""],["Zechariah",""],["Malachi",""],["Matthew",""],["Mark",""],["Luke",""],["John",""],["Acts",""],["Romans",""],["1\u00a0Corinthians",""],["2\u00a0Corinthians",""],["Galatians",""],["Ephesians",""],["Philippians",""],["Colossians",""],["1\u00a0Thessalonians",""],["2\u00a0Thessalonians",""],["1\u00a0Timothy",""],["2\u00a0Timothy",""],["Titus",""],["Philemon",""],["Hebrews",""],["James",""],["1\u00a0Peter",""],["2\u00a0Peter",""],["1\u00a0John",""],["2\u00a0John",""],["3\u00a0John",""],["Jude",""],["Revelation",""]],
+  "animals": [["Lion",""],["Donkey",""],["Colt",""],["Wild Donkey",""],["Dove",""],["Turtledove",""],["Raven",""],["Quail",""],["Snake",""],["Fiery Serpent",""],["Sheep",""],["Goat",""],["Camel",""],["Pig",""],["Herd of Pigs",""],["Frog",""],["Locust",""],["Great Fish",""],["Viper",""],["Calf",""],["Ram",""],["Lamb",""],["Bear",""],["Fox",""],["Eagle",""],["Sparrow",""],["Rooster",""],["Horse",""],["White Horse",""],["Ox",""],["Bull",""],["Mule",""],["Wolf",""],["Dog",""],["Bee",""],["Fly",""],["Leviathan",""],["Behemoth",""],["Deer",""],["Leopard",""],["Mouse",""],["Scorpion",""],["Ostrich",""],["Peacock",""],["Owl",""],["Hawk",""],["Ant",""],["Dragon",""]],
+  "foods": [["Manna",""],["Unleavened Bread",""],["Lentil Stew",""],["Honey",""],["Wild Honey",""],["Pomegranate",""],["Fig",""],["Grapes",""],["Raisins",""],["Raisin Cake",""],["Wine",""],["Grape Juice",""],["Sour Wine",""],["Cheese",""],["Bread",""],["Barley Loaves",""],["Broiled Fish",""],["Two Fish",""],["Bitter Herbs",""],["Roast Lamb",""],["Olive Oil",""],["Olives",""],["Milk and Honey",""],["Curds",""],["Vegetables",""],["Beans",""],["Cucumbers and Melons",""],["Leeks and Garlic",""],["Onions",""],["Wheat",""],["Barley",""],["Heads of Grain",""],["Roasted Grain",""],["Almonds",""],["Bread Baked on Coals",""],["Fattened Calf",""],["Dry Crust",""],["Fig Cakes",""]],
+  "terms": [["Grace",""],["Repentance",""],["Salvation",""],["Justification",""],["Sanctification",""],["Trinity",""],["Atonement",""],["Second Coming",""],["Covenant",""],["Born Again",""],["Filled with the Spirit",""],["Tithe",""],["Sabbath",""],["Calling",""],["Providence",""],["Predestination",""],["Compassion",""],["Reconciliation",""],["Baptism",""],["Faith",""],["Hope",""],["Love",""],["Gospel",""],["Evangelism",""],["Missions",""],["Adoration",""],["Obedience",""],["Dedication",""],["Suffering",""],["Heaven",""],["Hell",""],["Eternal Life",""],["Sin",""],["The Law",""],["Spiritual Gifts",""],["Incarnation",""],["Fellowship",""],["Kindness",""],["Peace",""],["Joy",""],["Patience",""],["Gentleness",""],["Self-Control",""],["Faithfulness",""],["Peacemaking",""],["Humility",""],["Thanksgiving",""],["Praise",""],["Prayer",""],["Fasting",""],["Worship",""],["Meditation",""],["The Word",""],["Divine Revelation",""],["Inspiration",""],["Creation",""],["The Fall",""],["Redemption",""],["Judgment",""],["End Times",""],["Precious Blood",""],["Intercession",""],["Purity",""],["Godliness",""],["Holiness",""],["Glory",""],["Supplication",""],["Vow",""],["Speaking in Tongues",""],["Prophecy",""],["Healing",""],["Miracle",""],["Blessing",""],["Conversion",""],["Forgiveness",""],["Discipleship",""],["Election",""],["Glorification",""],["Stewardship",""],["Conscience",""],["Discernment",""],["Temptation",""],["Refining",""],["Persecution",""],["Martyrdom",""],["Idolatry",""],["Apostles' Creed",""],["Original Sin",""],["Free Will",""],["Guidance of the Spirit",""],["Kingdom of God",""],["Image of God",""],["Messiah",""],["Lamb of God",""],["Doctrine",""],["Creed",""],["Redeemer",""],["Walking with God",""],["Restoration",""],["Anointing",""]],
+  "jobs": [["Shepherd",""],["Fisherman",""],["Tax Collector",""],["Priest",""],["High Priest",""],["Levite",""],["Scribe",""],["Pharisee",""],["Sadducee",""],["Expert in the Law",""],["Prophet",""],["King",""],["Queen",""],["Governor",""],["Cupbearer",""],["Chief Baker",""],["Potter",""],["Carpenter",""],["Tentmaker",""],["Centurion",""],["Soldier",""],["Gatekeeper",""],["Watchman",""],["Vinedresser",""],["Hired Worker",""],["Farmer",""],["Hunter",""],["Blacksmith",""],["Stonemason",""],["Purple Cloth Seller",""],["Tanner",""],["Physician",""],["Judge of Israel",""],["Servant",""],["Sailor",""],["Nursemaid",""],["Midwife",""],["Musician",""],["Diviner",""],["Merchant",""],["Money Changer",""],["Dove Seller",""],["Magistrate",""],["Jailer",""],["Apostle",""],["Evangelist",""]],
+  "numbers": [["3\u00a0Days",""],["7\u00a0Days",""],["40\u00a0Days",""],["40\u00a0Years",""],["12\u00a0Tribes",""],["12\u00a0Disciples",""],["12\u00a0Baskets",""],["7\u00a0Baskets",""],["5,000\u00a0People",""],["4,000\u00a0People",""],["666",""],["70\u00a0Times 7",""],["3\u00a0Denials",""],["300\u00a0Men",""],["5\u00a0Stones",""],["Age 30",""],["7\u00a0Fat Years, 7\u00a0Lean Years",""],["Age 969",""],["Age 100",""],["120\u00a0Years",""],["70\u00a0Years",""],["99\u00a0Sheep",""],["7\u00a0Churches",""],["144,000",""],["1,000\u00a0Years",""],["50\u00a0Days",""],["8\u00a0People on the Ark",""],["7\u00a0Times Around Jericho",""],["7\u00a0Dips in the Jordan",""],["Third-Story Window",""],["4\u00a0Gospels",""],["39\u00a0Old Testament Books",""],["27\u00a0New Testament Books",""],["Praying 3\u00a0Times a Day",""],["Two by Two",""]]
+};
+/*WORDS_EN_END*/
+
 (function(){
 'use strict';
 const A=window.LiarAudio||{scene(){},start(){},sfx:{tok(){},chime(){},bonk(){},bleat(){},tada(){}}};
 const AD=window.LiarAds||{finished(){},gate(n){return n();}}; // 광고 모듈은 스토어 빌드에서만 켜짐(루트 페이지에서는 무동작)
-const CATS=['전체',...Object.keys(WORDS)];
+
+/* ---------- i18n: 모든 화면 문구. 값은 문자열({name} 치환) 또는 함수(params). 한국어 문구는 원문 그대로 ---------- */
+const I18N={
+ko:{
+ 'title':'성경 라이어 게임','sound':'소리 켜기/끄기','lang.group':'언어 선택',
+ 'land.t1':'성경 라이어','land.t2':'우리 중에 검은 양이 있다','land.start':'게임 시작','land.aria':'풀밭의 양 떼 애니메이션',
+ 'setup.title':'📖 성경 라이어 게임','setup.sub':'폰 한 대로 함께 즐기는 말씀 게임',
+ 'setup.players':'인원 수','players.n':'{n}명',
+ 'setup.liars':'라이어 수','setup.liarsNote':'(2명은 6인 이상, 3명은 10인 이상)','liars.chip':'{c}명',
+ 'setup.mode':'모드','mode.normal':'일반','mode.fool':'바보',
+ 'mode.normal.desc':'라이어는 제시어 없이 카테고리만 알아요','mode.fool.desc':'라이어도 비슷한 다른 단어를 받아요. 본인이 라이어인지 몰라요',
+ 'setup.cat':'카테고리','cat.all':'전체',
+ 'cat.people':'인물','cat.places':'장소','cat.events':'사건','cat.parables':'비유·물건','cat.church':'교회 생활','cat.hymns':'찬양 제목',
+ 'cat.books':'성경 66권','cat.animals':'성경 속 동물','cat.foods':'성경 속 음식','cat.terms':'신앙 용어','cat.jobs':'성경 속 직업','cat.numbers':'성경 속 숫자',
+ 'how.title':'게임 방법',
+ 'how.1':'모두 제시어를 받지만 라이어만 제시어를 몰라요. (카테고리는 모두 알아요)',
+ 'how.2':'무작위로 정해진 첫 번째 사람부터 시계 방향으로 돌아가며 제시어를 한 문장씩 설명해요.',
+ 'how.3':'라이어는 들키지 않게 아는 척 설명해요.',
+ 'how.4':'모두 설명한 뒤 투표로 라이어를 지목해요. (라이어가 여러 명이면 그 수만큼 지목)',
+ 'how.5':'라이어가 잡히면 제시어를 맞힐 기회가 있어요. 맞히면 라이어 승리, 틀리면 시민 승리!',
+ 'how.fool':'<b>바보 모드</b>: 라이어도 같은 카테고리의 다른 단어를 제시어로 받아서, 본인이 라이어인지 모른 채 설명해요. 라이어가 잡히면 그제서야 자신이 라이어임을 알고, 시민들의 진짜 제시어를 맞혀야 해요.',
+ 'setup.go':'게임 시작',
+ 'home':'처음으로','home.confirm':'게임을 중단하고 설정 화면으로 돌아갈까요?','home.ok':'돌아가기','cancel':'취소',
+ 'cover.turn':'{n}번 플레이어 차례','cover.warn':'다른 사람은 보지 마세요','cover.show':'터치해서 확인',
+ 'rev.word':'제시어','rev.cat':'카테고리 · {cat}','rev.liar':'당신은 라이어입니다','rev.hide':'확인했어요 · 가리고 넘기기',
+ 'vote.title':'투표','vote.first':'{n}번부터 한 사람씩 돌아가며 설명한 후 투표하세요.',
+ 'vote.count':'“하나, 둘, 셋” 하면<br>동시에 라이어를 지목하세요',
+ 'vote.label':'가장 많은 표를 받은 사람','vote.pick':' ({n}명 선택)','vote.reveal':'공개',
+ 'pn':'{n}번','names':p=>p.list.map(n=>n+'번').join(', '),
+ 'rl.found':'라이어를 찾았어요!','rl.is':'라이어는','rl.partial':'라이어를 모두 찾지 못했어요. 라이어는',
+ 'rl.win':'라이어 승리!','rl.guessBtn':'라이어의 정답 기회','rl.revealWord':'제시어 공개',
+ 'g.title':'라이어 정답 기회','g.sub':'라이어가 아래 6개 중에서 진짜 제시어를 골라 주세요',
+ 'g.fool':'라이어는 자기가 받은 단어({w})와 다른 진짜 제시어를 맞혀야 해요',
+ 'res.citizen':'시민 승리!','res.liarGuessed':'라이어 승리! (제시어를 맞혔어요)',
+ 'res.citizenWord':'시민 제시어','res.liarWord':'라이어 제시어: {w}',
+ 'res.again':'같은 설정으로 다시','res.cfg':'설정 바꾸기'
+},
+en:{
+ 'title':'Bible Liar','sound':'Toggle sound','lang.group':'Language',
+ 'land.t1':'Bible Liar','land.t2':'There’s a black sheep among us','land.start':'Start Game','land.aria':'Animation of a flock of sheep in a meadow',
+ 'setup.title':'📖 Bible Liar','setup.sub':'A Bible party game on one phone',
+ 'setup.players':'Players','players.n':'{n}',
+ 'setup.liars':'Liars','setup.liarsNote':'(2 liars need 6+ players, 3 need 10+)','liars.chip':'{c}',
+ 'setup.mode':'Mode','mode.normal':'Normal','mode.fool':'Undercover',
+ 'mode.normal.desc':'The liar gets no word, only the category.','mode.fool.desc':'The liar gets a similar word instead and doesn’t know they’re the liar.',
+ 'setup.cat':'Category','cat.all':'All',
+ 'cat.people':'People','cat.places':'Places','cat.events':'Events','cat.parables':'Parables & Objects','cat.church':'Church Life','cat.hymns':'Hymns & Songs',
+ 'cat.books':'Books of the Bible','cat.animals':'Bible Animals','cat.foods':'Bible Foods','cat.terms':'Faith Terms','cat.jobs':'Occupations','cat.numbers':'Bible Numbers',
+ 'how.title':'How to Play',
+ 'how.1':'Everyone gets the secret word except the liar. (Everyone knows the category.)',
+ 'how.2':'Starting with a random player and going clockwise, everyone gives a one-sentence clue about the word.',
+ 'how.3':'The liar bluffs, pretending to know the word.',
+ 'how.4':'After everyone has spoken, vote for the liar. (If there are several liars, pick that many.)',
+ 'how.5':'If the liar is caught, they get one chance to guess the word. Guess right and the liar wins; guess wrong and the citizens win!',
+ 'how.fool':'<b>Undercover mode</b>: The liar gets a different word from the same category, so they don’t know they’re the liar and give clues like everyone else. Only when caught do they find out — then they must guess the real secret word.',
+ 'setup.go':'Start Game',
+ 'home':'Home','home.confirm':'Quit this game and go back to setup?','home.ok':'Quit','cancel':'Cancel',
+ 'cover.turn':'Player {n}’s turn','cover.warn':'Don’t let anyone else see','cover.show':'Tap to Reveal',
+ 'rev.word':'Secret word','rev.cat':'Category · {cat}','rev.liar':'You’re the liar!','rev.hide':'Got It · Hide & Pass',
+ 'vote.title':'Vote','vote.first':'Player {n} starts. Go around giving clues, then vote.',
+ 'vote.count':'On “1, 2, 3,”<br>everyone points at the liar!',
+ 'vote.label':'Most votes','vote.pick':' (pick\u00a0{n})','vote.reveal':'Reveal',
+ 'pn':'#{n}','names':p=>p.list.map(n=>'#'+n).join(', '),
+ 'rl.found':p=>p.c>1?'You caught all the liars!':'You caught the liar!',
+ 'rl.is':p=>p.c>1?'The liars are':'The liar is','rl.partial':'You missed some liars. The liars are',
+ 'rl.win':p=>p.c>1?'Liars win!':'Liar wins!','rl.guessBtn':p=>p.c>1?'Liars’ Last Chance':'Liar’s Last Chance','rl.revealWord':'Reveal the Word',
+ 'g.title':p=>p.c>1?'Liars’ Last Chance':'Liar’s Last Chance','g.sub':p=>p.c>1?'Liars, pick the secret word from these 6':'Liar, pick the secret word from these 6',
+ 'g.fool':p=>(p.c>1?'The liars’ word was “':'The liar’s word was “')+p.w+'” — the secret word is a different one!',
+ 'res.citizen':'Citizens win!','res.liarGuessed':p=>p.c>1?'Liars guessed right!':'Liar guessed right!',
+ 'res.citizenWord':'The secret word','res.liarWord':p=>(p.c>1?'Liars’':'Liar’s')+' word: '+p.w,
+ 'res.again':'Play Again','res.cfg':'Change Settings'
+}};
+let LANG='en';
+try{
+  const sl=localStorage.getItem('liarLang');
+  if(sl==='ko'||sl==='en')LANG=sl;
+  else{
+    // 저장된 선택이 없으면: 기존 한국어 사용자(liarCfg 존재)는 ko 유지, 신규는 브라우저 언어(ko*→ko, 그 외 en). 결정값은 저장해 다음 실행에서도 유지.
+    LANG=(localStorage.getItem('liarCfg')!==null||/^ko/i.test(navigator.language||''))?'ko':'en';
+    localStorage.setItem('liarLang',LANG);
+  }
+}catch(e){LANG=/^ko/i.test((navigator.language||''))?'ko':'en';}
+function t(key,p){
+  let v=I18N[LANG][key];
+  if(v===undefined)v=I18N.ko[key];
+  if(v===undefined)return key;
+  if(typeof v==='function')return v(p||{});
+  return p?v.replace(/\{(\w+)\}/g,(m,k)=>k in p?p[k]:m):v;
+}
+function applyLangMeta(){
+  document.documentElement.lang=LANG;
+  document.title=t('title');
+  const sb=document.getElementById('sndbtn');if(sb)sb.setAttribute('aria-label',t('sound'));
+  const lb=document.getElementById('langbtn');
+  if(lb){lb.setAttribute('aria-label',t('lang.group'));lb.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===LANG?'true':'false'));}
+}
+applyLangMeta();
+
+/* 카테고리: 내부 id(언어와 무관) <-> 표시 이름. 한국어 단어는 WORDS(한국어 이름 키), 영어는 WORDS_EN(id 키) */
+const CAT_IDS=['people','places','events','parables','church','hymns','books','animals','foods','terms','jobs','numbers'];
+const CATS=['all',...CAT_IDS];
+const catName=id=>t('cat.'+id);
+const KO_TO_ID={'전체':'all'};CAT_IDS.forEach(id=>{KO_TO_ID[I18N.ko['cat.'+id]]=id;});
+function wordsOf(id,lang){
+  if(lang==='en'&&WORDS_EN[id]&&WORDS_EN[id].length)return WORDS_EN[id];
+  return WORDS[I18N.ko['cat.'+id]];
+}
+const normCat=c=>CATS.includes(c)?c:(KO_TO_ID[c]||'all');
+const MODES=['normal','fool'];
+const normMode=m=>MODES.includes(m)?m:(m==='바보'?'fool':'normal');
 const app=document.getElementById('app');
-let cfg={n:5,liars:1,cat:'전체',mode:'일반'};
-const MODES=['일반','바보'];
-const MODE_DESC={'일반':'라이어는 제시어 없이 카테고리만 알아요','바보':'라이어도 비슷한 다른 단어를 받아요. 본인이 라이어인지 몰라요'};
+let cfg={n:5,liars:1,cat:'all',mode:'normal'};
 const maxLiars=n=>n>=10?3:n>=6?2:1;
 const gridCls=()=>cfg.n>9?'grid g4':'grid';
-try{const s=JSON.parse(localStorage.getItem('liarCfg')||'null');if(s&&s.n>=3&&s.n<=15){cfg={n:s.n|0,liars:Math.min(Math.max(s.liars|0,1),maxLiars(s.n)),cat:CATS.includes(s.cat)?s.cat:'전체',mode:MODES.includes(s.mode)?s.mode:'일반'};}}catch(e){}
+try{const s=JSON.parse(localStorage.getItem('liarCfg')||'null');if(s&&s.n>=3&&s.n<=15){cfg={n:s.n|0,liars:Math.min(Math.max(s.liars|0,1),maxLiars(s.n)),cat:normCat(s.cat),mode:normMode(s.mode)};}}catch(e){}
 function save(){try{localStorage.setItem('liarCfg',JSON.stringify(cfg));}catch(e){}}
 const used=new Set(); // session-used words
 let g=null; // game state
@@ -819,13 +957,15 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 
 function pickWord(){
   let pool=[];
-  const cats=cfg.cat==='전체'?Object.keys(WORDS):[cfg.cat];
-  cats.forEach(c=>WORDS[c].forEach(([w,v])=>pool.push({w,v,c})));
-  let fresh=pool.filter(x=>!used.has(x.w));
-  if(!fresh.length){pool.forEach(x=>used.delete(x.w));fresh=pool;}
+  const lang=LANG;
+  const cats=cfg.cat==='all'?CAT_IDS:[cfg.cat];
+  cats.forEach(c=>wordsOf(c,lang).forEach(([w,v])=>pool.push({w,v,c})));
+  const uk=x=>x.c+'|'+x.w;
+  let fresh=pool.filter(x=>!used.has(uk(x)));
+  if(!fresh.length){pool.forEach(x=>used.delete(uk(x)));fresh=pool;}
   const p=fresh[rnd(fresh.length)];
-  used.add(p.w);
-  if(cfg.mode==='바보'){const others=WORDS[p.c].filter(([w])=>w!==p.w);if(others.length)p.fool=others[rnd(others.length)][0];}
+  used.add(uk(p));
+  if(cfg.mode==='fool'){const others=wordsOf(p.c,lang).filter(([w])=>w!==p.w);if(others.length)p.fool=others[rnd(others.length)][0];}
   return p;
 }
 function startGame(){
@@ -833,64 +973,80 @@ function startGame(){
   const ids=[...Array(cfg.n).keys()];
   const liars=[];
   for(let i=0;i<cfg.liars;i++){liars.push(ids.splice(rnd(ids.length),1)[0]);}
-  g={word:p.w,fool:cfg.mode==='바보'&&p.fool?p.fool:null,verse:p.v,cat:p.c,liars:liars.sort((a,b)=>a-b),i:0,first:rnd(cfg.n),sel:[],caught:false,guess:null,};
+  g={word:p.w,fool:cfg.mode==='fool'&&p.fool?p.fool:null,verse:p.v,cat:p.c,lang:LANG,liars:liars.sort((a,b)=>a-b),i:0,first:rnd(cfg.n),sel:[],caught:false,guess:null,};
   coverScreen();
 }
-function set(html){app.innerHTML='<div class="screen">'+html+'</div>';window.scrollTo(0,0);}
+function set(html,scr,still){
+  document.body.dataset.scr=scr||'game';
+  app.innerHTML='<div class="screen"'+(still?' style="animation:none"':'')+'>'+html+'</div>';window.scrollTo(0,0);
+}
 function on(id,fn){const e=document.getElementById(id);if(e)e.onclick=fn;return e;}
 
 /* in-page dialog */
 function dialog(msg,okText,onOk){
   const m=document.createElement('div');m.className='mask';
-  m.innerHTML='<div class="dlg"><div style="font-size:20px;font-weight:700">'+esc(msg)+'</div><button class="btn" id="dOk">'+esc(okText)+'</button><button class="btn ghost" id="dNo">취소</button></div>';
+  m.innerHTML='<div class="dlg"><div style="font-size:20px;font-weight:700">'+esc(msg)+'</div><button class="btn" id="dOk">'+esc(okText)+'</button><button class="btn ghost" id="dNo">'+esc(t('cancel'))+'</button></div>';
   document.body.appendChild(m);
   m.querySelector('#dNo').onclick=()=>m.remove();
   m.querySelector('#dOk').onclick=()=>{m.remove();onOk();};
 }
-function homeBtn(){return '<div class="topbar"><button class="small" id="home">처음으로</button></div>';}
-function bindHome(){on('home',()=>dialog('게임을 중단하고 설정 화면으로 돌아갈까요?','돌아가기',setupScreen));}
+function homeBtn(){return '<div class="topbar"><button class="small" id="home">'+t('home')+'</button></div>';}
+function bindHome(){on('home',()=>dialog(t('home.confirm'),t('home.ok'),setupScreen));}
+
+/* language switch (landing/setup only: the toggle is hidden during a game) */
+function setLang(l){
+  if((l!=='ko'&&l!=='en')||l===LANG)return;
+  LANG=l;
+  try{localStorage.setItem('liarLang',l);}catch(e){}
+  applyLangMeta();
+  const scr=document.body.dataset.scr;
+  if(scr==='landing'&&landingEl)paintLanding();
+  else if(scr==='setup'&&!g){const y=window.scrollY;setupScreen(true);window.scrollTo(0,y);}
+}
+document.querySelectorAll('#langbtn button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.l)));
 
 /* 1. setup */
-function setupScreen(){
+function setupScreen(still){
   g=null;A.scene('setup');
   set(`
-  <h1>📖 성경 라이어 게임</h1>
-  <p class="sub">폰 한 대로 함께 즐기는 말씀 게임</p>
-  <div class="card"><div class="label">인원 수</div>
+  <div style="flex:none;height:20px"></div>
+  <h1>${t('setup.title')}</h1>
+  <p class="sub">${t('setup.sub')}</p>
+  <div class="card"><div class="label">${t('setup.players')}</div>
     <div class="row stepper"><button id="nm">−</button><div class="val" id="nv"></div><button id="np">+</button></div></div>
-  <div class="card"><div class="label">라이어 수 <span class="note">(2명은 6인 이상, 3명은 10인 이상)</span></div>
-    <div class="chips"><button class="chip" id="l1">1명</button><button class="chip" id="l2">2명</button><button class="chip" id="l3">3명</button></div></div>
-  <div class="card"><div class="label">모드</div><div class="chips"><button class="chip" id="m1">일반</button><button class="chip" id="m2">바보</button></div><div class="note" id="mdesc" style="margin-top:8px"></div></div>
-  <div class="card"><div class="label">카테고리</div><div class="chips" id="cats"></div></div>
-  <details class="card" open><summary>게임 방법</summary><ol>
-    <li>모두 제시어를 받지만 라이어만 제시어를 몰라요. (카테고리는 모두 알아요)</li>
-    <li>무작위로 정해진 첫 번째 사람부터 시계 방향으로 돌아가며 제시어를 한 문장씩 설명해요.</li>
-    <li>라이어는 들키지 않게 아는 척 설명해요.</li>
-    <li>모두 설명한 뒤 투표로 라이어를 지목해요. (라이어가 여러 명이면 그 수만큼 지목)</li>
-    <li>라이어가 잡히면 제시어를 맞힐 기회가 있어요. 맞히면 라이어 승리, 틀리면 시민 승리!</li></ol>
-    <p class="note" style="margin:8px 0 0"><b>바보 모드</b>: 라이어도 같은 카테고리의 다른 단어를 제시어로 받아서, 본인이 라이어인지 모른 채 설명해요. 라이어가 잡히면 그제서야 자신이 라이어임을 알고, 시민들의 진짜 제시어를 맞혀야 해요.</p></details>
+  <div class="card"><div class="label">${t('setup.liars')} <span class="note">${t('setup.liarsNote')}</span></div>
+    <div class="chips"><button class="chip" id="l1">${t('liars.chip',{c:1})}</button><button class="chip" id="l2">${t('liars.chip',{c:2})}</button><button class="chip" id="l3">${t('liars.chip',{c:3})}</button></div></div>
+  <div class="card"><div class="label">${t('setup.mode')}</div><div class="chips"><button class="chip" id="m1">${t('mode.normal')}</button><button class="chip" id="m2">${t('mode.fool')}</button></div><div class="note" id="mdesc" style="margin-top:8px"></div></div>
+  <div class="card"><div class="label">${t('setup.cat')}</div><div class="chips" id="cats"></div></div>
+  <details class="card" open><summary>${t('how.title')}</summary><ol>
+    <li>${t('how.1')}</li>
+    <li>${t('how.2')}</li>
+    <li>${t('how.3')}</li>
+    <li>${t('how.4')}</li>
+    <li>${t('how.5')}</li></ol>
+    <p class="note" style="margin:8px 0 0">${t('how.fool')}</p></details>
   <div class="spacer"></div>
-  <button class="btn olive" id="go">게임 시작</button>`);
+  <button class="btn olive" id="go">${t('setup.go')}</button>`,'setup',still===true);
   const paint=()=>{
-    document.getElementById('nv').textContent=cfg.n+'명';
+    document.getElementById('nv').textContent=t('players.n',{n:cfg.n});
     document.getElementById('nm').disabled=cfg.n<=3;
     document.getElementById('np').disabled=cfg.n>=15;
     if(cfg.liars>maxLiars(cfg.n))cfg.liars=maxLiars(cfg.n);
     document.getElementById('l1').className='chip'+(cfg.liars===1?' on':'');
     const l2=document.getElementById('l2');l2.className='chip'+(cfg.liars===2?' on':'');l2.disabled=cfg.n<6;
     const l3=document.getElementById('l3');l3.className='chip'+(cfg.liars===3?' on':'');l3.disabled=cfg.n<10;
-    document.getElementById('m1').className='chip'+(cfg.mode==='일반'?' on':'');
-    document.getElementById('m2').className='chip'+(cfg.mode==='바보'?' on':'');
-    document.getElementById('mdesc').textContent=MODE_DESC[cfg.mode];
+    document.getElementById('m1').className='chip'+(cfg.mode==='normal'?' on':'');
+    document.getElementById('m2').className='chip'+(cfg.mode==='fool'?' on':'');
+    document.getElementById('mdesc').textContent=t('mode.'+cfg.mode+'.desc');
     document.querySelectorAll('#cats .chip').forEach(c=>c.className='chip'+(c.dataset.c===cfg.cat?' on':''));
     save();
   };
   const cats=document.getElementById('cats');
-  CATS.forEach(c=>{const b=document.createElement('button');b.className='chip';b.dataset.c=c;b.textContent=c;b.onclick=()=>{cfg.cat=c;paint();};cats.appendChild(b);});
+  CATS.forEach(c=>{const b=document.createElement('button');b.className='chip';b.dataset.c=c;b.textContent=catName(c);b.onclick=()=>{cfg.cat=c;paint();};cats.appendChild(b);});
   on('nm',()=>{cfg.n--;paint();});on('np',()=>{cfg.n++;paint();});
   on('l1',()=>{cfg.liars=1;paint();});on('l2',()=>{if(cfg.n>=6){cfg.liars=2;paint();}});
   on('l3',()=>{if(cfg.n>=10){cfg.liars=3;paint();}});
-  on('m1',()=>{cfg.mode='일반';paint();});on('m2',()=>{cfg.mode='바보';paint();});
+  on('m1',()=>{cfg.mode='normal';paint();});on('m2',()=>{cfg.mode='fool';paint();});
   on('go',startGame);
   paint();
 }
@@ -900,11 +1056,11 @@ function coverScreen(){
   A.scene('play');
   set(`${homeBtn()}
   <div class="center">
-    <div class="big">${g.i+1}번 플레이어 차례</div>
-    <div class="warn">다른 사람은 보지 마세요</div>
+    <div class="big">${t('cover.turn',{n:g.i+1})}</div>
+    <div class="warn">${t('cover.warn')}</div>
     <div class="note">${g.i+1} / ${cfg.n}</div>
   </div>
-  <button class="btn" id="show">터치해서 확인</button>`);
+  <button class="btn" id="show">${t('cover.show')}</button>`);
   bindHome();
   on('show',revealScreen);
 }
@@ -912,11 +1068,11 @@ function revealScreen(){
   const isLiar=g.liars.includes(g.i);
   set(`<div class="topbar" style="min-height:44px"></div>
   <div class="center">
-    <div class="label" style="margin:0">제시어</div>
-    <div class="cat">카테고리 · ${esc(g.cat)}</div>
-    <div class="wordbox">${isLiar?(g.fool?esc(g.fool):'당신은 라이어입니다'):esc(g.word)}</div>
+    <div class="label" style="margin:0">${t('rev.word')}</div>
+    <div class="cat">${t('rev.cat',{cat:esc(catName(g.cat))})}</div>
+    <div class="wordbox">${isLiar?(g.fool?esc(g.fool):t('rev.liar')):esc(g.word)}</div>
   </div>
-  <button class="btn" id="hide">확인했어요 · 가리고 넘기기</button>`);
+  <button class="btn" id="hide">${t('rev.hide')}</button>`);
   on('hide',()=>{
     g.i++;
     if(g.i>=cfg.n){voteScreen();}else{coverScreen();}
@@ -928,14 +1084,14 @@ function voteScreen(){
   A.scene('play');
   g.sel=[];
   const need=cfg.liars;
-  let btns='';for(let i=0;i<cfg.n;i++)btns+=`<button class="pbtn" data-i="${i}">${i+1}번</button>`;
+  let btns='';for(let i=0;i<cfg.n;i++)btns+=`<button class="pbtn" data-i="${i}">${t('pn',{n:i+1})}</button>`;
   set(`${homeBtn()}
-  <h2>투표</h2>
-  <p class="note" style="text-align:center;margin:0;font-size:16px;word-break:keep-all">${g.first+1}번부터 한 사람씩 돌아가며 설명한 후 투표하세요.</p>
-  <p class="sub" style="font-size:19px;color:var(--cream)">“하나, 둘, 셋” 하면<br>동시에 라이어를 지목하세요</p>
-  <div class="card"><div class="label">가장 많은 표를 받은 사람${need>1?` (${need}명 선택)`:''}</div><div class="${gridCls()}">${btns}</div></div>
+  <h2>${t('vote.title')}</h2>
+  <p class="note" style="text-align:center;margin:0;font-size:16px;word-break:keep-all">${t('vote.first',{n:g.first+1})}</p>
+  <p class="sub" style="font-size:19px;color:var(--cream)">${t('vote.count')}</p>
+  <div class="card"><div class="label">${t('vote.label')}${need>1?t('vote.pick',{n:need}):''}</div><div class="${gridCls()}">${btns}</div></div>
   <div class="spacer"></div>
-  <button class="btn olive" id="rv" disabled>공개</button>`);
+  <button class="btn olive" id="rv" disabled>${t('vote.reveal')}</button>`);
   bindHome();
   const rv=document.getElementById('rv');
   document.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{
@@ -952,36 +1108,38 @@ function voteScreen(){
 function revealLiars(){
   A.scene('play');
   g.caught=g.liars.every(l=>g.sel.includes(l));
-  const names=g.liars.map(l=>(l+1)+'번').join(', ');
-  let grid='';for(let i=0;i<cfg.n;i++)grid+=`<div class="pbtn ${g.liars.includes(i)?'liar':''}" style="display:flex;align-items:center;justify-content:center">${i+1}번</div>`;
+  const lc=g.liars.length;
+  const names=t('names',{list:g.liars.map(l=>l+1)});
+  let grid='';for(let i=0;i<cfg.n;i++)grid+=`<div class="pbtn ${g.liars.includes(i)?'liar':''}" style="display:flex;align-items:center;justify-content:center">${t('pn',{n:i+1})}</div>`;
   if(g.caught){
     set(`<div class="topbar" style="min-height:44px"></div>
-    <div class="banner">라이어를 찾았어요!</div>
-    <div class="card center"><div class="label" style="margin:0">라이어는</div><div class="big">${names}</div></div>
+    <div class="banner">${t('rl.found',{c:lc})}</div>
+    <div class="card center"><div class="label" style="margin:0">${t('rl.is',{c:lc})}</div><div class="big">${names}</div></div>
     <div class="card"><div class="${gridCls()}">${grid}</div></div>
-    <button class="btn" id="nx">라이어의 정답 기회</button>`);
+    <button class="btn" id="nx">${t('rl.guessBtn',{c:lc})}</button>`);
     on('nx',guessScreen);
     A.sfx.chime();
   }else{
     set(`<div class="topbar" style="min-height:44px"></div>
-    <div class="banner">라이어 승리!</div>
-    <div class="card center"><div class="label" style="margin:0">${g.liars.length>1&&g.sel.some(s=>g.liars.includes(s))?'라이어를 모두 찾지 못했어요. 라이어는':'라이어는'}</div><div class="big">${names}</div></div>
+    <div class="banner">${t('rl.win',{c:lc})}</div>
+    <div class="card center"><div class="label" style="margin:0">${lc>1&&g.sel.some(s=>g.liars.includes(s))?t('rl.partial'):t('rl.is',{c:lc})}</div><div class="big">${names}</div></div>
     <div class="card"><div class="${gridCls()}">${grid}</div></div>
-    <button class="btn" id="nx">제시어 공개</button>`);
+    <button class="btn" id="nx">${t('rl.revealWord')}</button>`);
     on('nx',()=>resultScreen('liar'));
     A.sfx.bleat();
   }
 }
 function guessScreen(){
   A.scene('guess');
-  const pool=WORDS[g.cat].map(([w])=>w).filter(w=>w!==g.word&&w!==g.fool);
+  const lc=g.liars.length;
+  const pool=wordsOf(g.cat,g.lang).map(([w])=>w).filter(w=>w!==g.word&&w!==g.fool);
   for(let i=pool.length-1;i>0;i--){const j=rnd(i+1);[pool[i],pool[j]]=[pool[j],pool[i]];}
   const opts=[g.word,...pool.slice(0,5)];
   for(let i=opts.length-1;i>0;i--){const j=rnd(i+1);[opts[i],opts[j]]=[opts[j],opts[i]];}
   set(`<div class="topbar" style="min-height:44px"></div>
-  <h2>라이어 정답 기회</h2>
-  <p class="sub" style="font-size:19px;color:var(--cream);word-break:keep-all">라이어가 아래 6개 중에서 진짜 제시어를 골라 주세요</p>${g.fool?`<p class="note" style="text-align:center;margin:0;word-break:keep-all">라이어는 자기가 받은 단어(${esc(g.fool)})와 다른 진짜 제시어를 맞혀야 해요</p>`:''}
-  <div class="cat" style="text-align:center;margin:18px 0 0">카테고리 · ${esc(g.cat)}</div>
+  <h2>${t('g.title',{c:lc})}</h2>
+  <p class="sub" style="font-size:19px;color:var(--cream);word-break:keep-all">${t('g.sub',{c:lc})}</p>${g.fool?`<p class="note" style="text-align:center;margin:0;word-break:keep-all">${t('g.fool',{c:lc,w:esc(g.fool)})}</p>`:''}
+  <div class="cat" style="text-align:center;margin:18px 0 0">${t('rev.cat',{cat:esc(catName(g.cat))})}</div>
   <div class="mc">${opts.map((w,i)=>`<button class="mcbtn" data-i="${i}">${esc(w)}</button>`).join('')}</div>`);
   const btns=[...document.querySelectorAll('.mcbtn')];
   btns.forEach((b,i)=>b.onclick=()=>{
@@ -1000,21 +1158,21 @@ function resultScreen(winner,guessed){
   A.scene('result');
   AD.finished();
   if(winner==='citizen')A.sfx.tada();else if(guessed)A.sfx.bleat();
-  const msg=winner==='citizen'?'시민 승리!':(guessed?'라이어 승리! (제시어를 맞혔어요)':'라이어 승리!');
+  const lc=g.liars.length;
+  const msg=winner==='citizen'?t('res.citizen'):(guessed?t('res.liarGuessed',{c:lc}):t('rl.win',{c:lc}));
   set(`<div class="topbar" style="min-height:44px"></div>
   <div class="bwrap">${sheepSVG(winner!=='citizen')}<div class="banner">${msg}</div></div>
   <div class="card center">
-    ${g.fool?`<div class="cat">카테고리 · ${esc(g.cat)}</div>
-    <div class="label" style="margin:0">시민 제시어</div>
+    ${g.fool?`<div class="cat">${t('rev.cat',{cat:esc(catName(g.cat))})}</div>
+    <div class="label" style="margin:0">${t('res.citizenWord')}</div>
     <div class="big" style="font-size:36px;word-break:keep-all">${esc(g.word)}</div>
-    <div class="cat" style="font-weight:500">라이어 제시어: ${esc(g.fool)}</div>`:`<div class="label" style="margin:0">제시어</div>
-    <div class="cat">카테고리 · ${esc(g.cat)}</div>
+    <div class="cat" style="font-weight:500">${t('res.liarWord',{c:lc,w:esc(g.fool)})}</div>`:`<div class="label" style="margin:0">${t('rev.word')}</div>
+    <div class="cat">${t('rev.cat',{cat:esc(catName(g.cat))})}</div>
     <div class="big" style="font-size:40px">${esc(g.word)}</div>`}  </div>
-  <button class="btn olive" id="again">같은 설정으로 다시</button>
-  <button class="btn ghost" id="cfgb">설정 바꾸기</button>`);
+  <button class="btn olive" id="again">${t('res.again')}</button>
+  <button class="btn ghost" id="cfgb">${t('res.cfg')}</button>`);
   on('again',()=>AD.gate(startGame));on('cfgb',()=>AD.gate(setupScreen));
 }
-
 
 
 /* static themed background (rendered once) + static sheep for result banner */
@@ -1045,11 +1203,19 @@ function leaveLanding(){
   if(raf){cancelAnimationFrame(raf);raf=0;}
   if(landingEl){landingEl.remove();landingEl=null;}
 }
+function paintLanding(){
+  if(!landingEl)return;
+  landingEl.querySelector('#lsv').setAttribute('aria-label',t('land.aria'));
+  landingEl.querySelector('.lt1').textContent=t('land.t1');
+  landingEl.querySelector('.lt2').textContent=t('land.t2');
+  landingEl.querySelector('#lstart').textContent=t('land.start');
+}
 function landingScreen(){
   A.scene('landing');
+  document.body.dataset.scr='landing';
   const NS='http://www.w3.org/2000/svg';
   landingEl=document.createElement('div');landingEl.id='landing';
-  landingEl.innerHTML='<svg id="lsv" viewBox="0 0 300 520" preserveAspectRatio="xMidYMax slice" role="img" aria-label="풀밭의 양 떼 애니메이션"></svg><div class="lt"><div class="lt1">성경 라이어</div><div class="lt2">우리 중에 검은 양이 있다</div></div><button class="lb" id="lstart">게임 시작</button>';
+  landingEl.innerHTML='<svg id="lsv" viewBox="0 0 300 520" preserveAspectRatio="xMidYMax slice" role="img" aria-label="'+t('land.aria')+'"></svg><div class="lt"><div class="lt1">'+t('land.t1')+'</div><div class="lt2">'+t('land.t2')+'</div></div><button class="lb" id="lstart">'+t('land.start')+'</button>';
   document.body.appendChild(landingEl);
   const sv=landingEl.querySelector('#lsv');
   let sd=5;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;

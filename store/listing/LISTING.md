@@ -8,9 +8,21 @@
 |---|---|---|
 | 앱 아이콘 | `icon-512.png` | 512x512, 32비트 PNG, 55KB (한도 1MB) |
 | 대표 그래픽 | `feature-graphic-1024x500.png` | 1024x500, PNG(알파 없음) |
-| 휴대전화 스크린샷 6장 | `01-landing.png` ~ `06-result.png` | 1080x1920 (9:16), PNG, 각 약 110~200KB |
+| 휴대전화 스크린샷 6장 | `01-landing.png` ~ `06-result.png` | 1080x1920 (9:16), PNG, 각 약 160~290KB |
 
 스크린샷 순서: 01 시작 화면 / 02 설정(5명) / 03 역할 확인 넘기기 / 04 라이어 투표 / 05 라이어 정답 기회 / 06 결과(라이어 승리). 규격 기준으로 Play는 2~8장을 요구하고, 각 변 320~3840px이며 긴 변이 짧은 변의 2배를 넘지 않으면 됩니다.
+
+스크린샷은 언어 전환 버튼(KO/EN)이 들어간 최신 화면(설정 화면 상단 여백 추가 반영)으로 2026-11-19에 다시 만들었습니다. 같은 이름의 영어 버전은 `en/` 폴더에 있습니다(`en/feature-graphic-1024x500.png`, `en/01-landing.png` ~ `en/06-result.png`).
+
+**언어 지원 (한국어 + 영어)**: 앱은 한국어와 영어를 모두 지원합니다(앱 안의 KO/EN 버튼으로 전환, 기기 언어를 따라 첫 언어가 정해집니다). 이 문서의 위쪽(2~6절)은 **한국어(기본 언어) 등록정보**이고, 영어 등록정보는 문서 맨 아래 "English (en-US) listing" 절에 있습니다.
+
+Play Console에 영어 번역 추가하는 방법 (메뉴 이름은 바뀔 수 있어요):
+1. **성장(Grow) > 스토어 입장(Store presence) > 기본 스토어 등록정보(Main store listing)**로 이동합니다. (영문 콘솔 기준 Grow users > Store presence > Main store listing)
+2. 화면 위쪽의 **번역 관리(Manage translations)**를 눌러 **"직접 번역 추가(Add your own translations)"**를 고르고 **영어(미국) - en-US (English (United States))**를 추가합니다. (Google 자동 번역 옵션은 쓰지 않는 것을 권장합니다)
+3. 저장하면 같은 화면에서 언어를 영어(미국)로 바꿔 입력할 수 있습니다. 앱 이름 `Bible Liar`, 간단한 설명, 자세한 설명을 아래 영어 절에서 복사해 붙여넣습니다.
+4. **그래픽 자산도 언어별로 따로 올릴 수 있습니다.** 영어(미국) 등록정보에서 `en/feature-graphic-1024x500.png`(대표 그래픽)와 `en/01-landing.png` ~ `en/06-result.png`(휴대전화 스크린샷)를 올리면 영어 사용자에게는 영어 이미지가 보입니다. 올리지 않으면 기본 언어(한국어) 이미지가 대신 표시됩니다. 앱 아이콘은 글자가 없어서 한국어와 같은 `icon-512.png`를 그대로 쓰면 됩니다.
+5. 기본 언어는 **한국어**로 그대로 두세요(앱 만들기에서 정한 기본 언어는 나중에 바꾸기 어렵습니다). 번역을 추가해도 한국어 등록정보는 바뀌지 않습니다.
+6. 불확실: 영국·호주·캐나다 등 다른 영어 지역 사용자에게 en-US 등록정보가 그대로 보이는지는 확인하지 못했습니다. 필요하면 영어(영국) 등 해당 언어를 같은 내용으로 추가하세요.
 
 ## 2. 앱 이름 (30자 이내)
 
@@ -145,7 +157,7 @@ URL: `https://jiho755.github.io/liar_game/privacy.html` (연락처 이메일 pla
 3. 앱 만들기: 이름 "성경 라이어", 기본 언어 한국어, 앱 유형 "게임", 무료, 정책·수출법 동의
 4. 서명 키스토어 보관 (Play 앱 서명 사용, 업로드 키스토어와 비밀번호는 안전하게 백업. `store/KEYSTORE.md` 참고)
 5. 앱 콘텐츠 선언 입력: 개인정보처리방침 → 앱 액세스 → 광고(예) → 콘텐츠 등급 → 타겟층(13세 이상) → 데이터 보안(6-4 표) → 광고 ID(예) → 기타(정부·금융·건강 등)
-6. 기본 스토어 등록정보 입력: 이름, 간단한 설명, 자세한 설명, 아이콘, 대표 그래픽, 스크린샷 6장, 카테고리·태그, 연락처 이메일
+6. 기본 스토어 등록정보 입력: 이름, 간단한 설명, 자세한 설명, 아이콘, 대표 그래픽, 스크린샷 6장, 카테고리·태그, 연락처 이메일 (영어 번역은 1절의 "언어 지원" 안내에 따라 en-US를 추가하고 `en/` 이미지와 아래 영어 문구 사용)
 7. AAB(Android App Bundle)를 **`real_ads` 체크 상태로 수동 실행**해 빌드한 뒤(테스트 광고 ID 빌드는 출시용이 아님) **비공개 테스트(Closed testing)** 트랙에 업로드, 테스터 목록(이메일 목록 또는 Google 그룹) 등록 (targetSdk가 Play의 현재 요구 수준을 만족하는지 확인)
 8. 테스터 12명 이상 모집, 14일 연속 참여 유지 (아래 참고)
 9. 14일 후 콘솔에서 "프로덕션 액세스 신청"에 답변 작성 (테스트 방법, 받은 피드백, 앱 준비 상태)
@@ -159,3 +171,80 @@ URL: `https://jiho755.github.io/liar_game/privacy.html` (연락처 이메일 pla
 ---
 
 *이 문서의 선언 내용은 2026-11-18 기준 앱 동작(스토어 빌드에 Google AdMob 전면 광고 포함, 게임 자체는 계정·서버 전송 없음, 로컬 저장소에 설정만 저장)을 전제로 합니다. 앱 기능이 바뀌면 다시 확인하세요. Play Console 화면과 문항 이름은 자주 바뀔 수 있습니다.*
+
+---
+
+# English (en-US) listing
+
+Play Console: add **English (United States) - en-US** as a translation (see "언어 지원" in section 1 for the click path). The Korean listing above stays the default language. Everything below can be pasted as-is.
+
+## EN-1. Graphics for en-US (folder `en/`)
+
+| Item | File | Spec |
+|---|---|---|
+| App icon | `icon-512.png` (same file as Korean, no text on it) | 512x512, 32-bit PNG |
+| Feature graphic | `en/feature-graphic-1024x500.png` | 1024x500, PNG, no alpha |
+| Phone screenshots (6) | `en/01-landing.png` ... `en/06-result.png` | 1080x1920 (9:16), PNG, about 170-285 KB each |
+
+- Feature graphic text: title "Bible Liar", subtitle "A pass-the-phone Bible party game" (same sage-green sheep artwork as the Korean one).
+- Screenshot order: 01 landing / 02 setup (5 players) / 03 pass-the-phone cover / 04 vote / 05 liar's last chance (6 choices) / 06 result (Liar wins). All were captured from the real game with the language set to English (word category: People).
+- Upload these in the en-US listing; if you skip them, Play shows the default-language (Korean) images to English users.
+
+## EN-2. App name (30 characters max)
+
+```
+Bible Liar
+```
+
+(10 characters. Alternative: `Bible Liar: Party Game`, 22 characters.)
+
+## EN-3. Short description (80 characters max)
+
+```
+Pass one phone, find the liar! A Bible party game for 3-15 players, offline.
+```
+
+(76 characters)
+
+## EN-4. Full description (4000 characters max)
+
+```
+Is there a black sheep among us? All you need is one phone to play Bible Liar at youth group, small group, retreats, church socials, or family dinner.
+
+HOW TO PLAY
+1. Pass the phone around. Everyone sees the category (for example "People"), but only the citizens see the secret word. The liar doesn't know it!
+2. Starting with a random player, take turns giving a one-sentence clue about the secret word.
+3. The liar has to bluff and sound like they know the word.
+4. When everyone has spoken, vote: on "1, 2, 3," everyone points at who they think the liar is.
+5. If the liar isn't caught, the liar wins right away.
+6. If the liar is caught, they get one last chance to guess the secret word from 6 choices. Guess right and the liar wins. Guess wrong and the citizens win!
+
+FEATURES
+- 3 to 15 players on a single phone
+- 12 Bible-themed categories: People, Places, Events, Parables & Objects, Church Life, Hymns & Songs, Books of the Bible, Bible Animals, Bible Foods, Faith Terms, Occupations, and Bible Numbers (or mix them all)
+- About 1,000 Bible-themed words
+- 1 to 3 liars (limited automatically by the number of players)
+- Undercover mode: the liar gets a similar but different word and doesn't know they're the liar, so they describe the wrong word with total confidence
+- Works fully offline for gameplay. No account, no sign-up
+- Switch between Korean and English any time from the home or setup screen
+- Cute sheep characters with relaxing background music and sound effects (you can mute them anytime)
+- Free to play, with ads: a full-screen ad may appear when you finish a game and tap "Play Again" or "Change Settings", starting with your second game and then every other game after that. Ads never appear in the middle of a game
+- The game itself doesn't collect personal information (see the privacy policy for details about the ad SDK)
+
+GREAT FOR
+- Icebreakers at youth group and church gatherings
+- Retreats, camps, and small-group fun
+- Family and friends get-togethers
+
+Have fun remembering the people, places, and stories of the Bible together!
+```
+
+(2065 characters)
+
+## EN-5. Declarations (same answers as the Korean listing)
+
+The app is one binary with one set of behaviors, so these Play Console answers do **not** change for English: privacy policy URL (`https://jiho755.github.io/liar_game/privacy.html`; it already contains an English section, and the console has only one privacy policy field for all languages), app access, ads (AdMob interstitial only, shown at the 2nd, 4th, 6th ... finished game), Data safety, content rating (IARC), target audience (13+), and the other declarations in section 6 above. The category and tags are also shared.
+
+Notes on the ad wording in the English description: the game counts a game as finished when the player taps "Play Again" or "Change Settings" on the result screen. The first game never shows an ad; the 2nd, 4th, 6th ... do, but only if an ad is loaded at that moment (otherwise the game simply continues and still counts). The ad is in the store (AAB) build only. Keep this text in sync with section 6-3 if the behavior changes.
+
+Content rating note: English word lists include a few wine-related Bible words as text only (for example "Wine", "Sour Wine", or "Water into Wine"), so the same "mention only" answer as the Korean questionnaire applies. Answer honestly if the questionnaire asks about references to alcohol.

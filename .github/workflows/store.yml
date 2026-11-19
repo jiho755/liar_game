@@ -102,6 +102,32 @@ jobs:
           printf "\ndependencies {\n    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')\n}\n" >> android/app/build.gradle
           cat capacitor.config.* || true
 
+      - name: Localize app name (en -> "Bible Liar")
+        working-directory: app/android
+        run: |
+          set -euo pipefail
+          # 기본(values/strings.xml)은 한국어 "성경 라이어"를 유지하고, 영어 기기(values-en)에서만 "Bible Liar" 로 보이게 한다.
+          # package_name / custom_url_scheme 은 번역 대상이 아니므로 values-en 에 넣지 않는다(기본 값으로 대체됨).
+          RES=app/src/main/res
+          test -f "$RES/values/strings.xml" || { echo "::error::기본 strings.xml 이 없습니다"; exit 1; }
+          grep -q 'name="app_name"' "$RES/values/strings.xml" || { echo "::error::기본 strings.xml 에 app_name 이 없습니다"; exit 1; }
+          mkdir -p "$RES/values-en"
+          cat > "$RES/values-en/strings.xml" <<'XML'
+          <?xml version='1.0' encoding='utf-8'?>
+          <resources>
+              <string name="app_name">Bible Liar</string>
+              <string name="title_activity_main">Bible Liar</string>
+          </resources>
+          XML
+          cat "$RES/values-en/strings.xml"
+          F="$RES/values-en/strings.xml"
+          test -s "$F" || { echo "::error::values-en/strings.xml 생성 실패" >&2; exit 1; }
+          grep -qF '<string name="app_name">Bible Liar</string>' "$F" || { echo "::error::values-en app_name 확인 실패" >&2; exit 1; }
+          grep -qF '<string name="title_activity_main">Bible Liar</string>' "$F" || { echo "::error::values-en title_activity_main 확인 실패" >&2; exit 1; }
+          python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse('$F')" || { echo "::error::values-en/strings.xml 이 올바른 XML 이 아닙니다" >&2; exit 1; }
+          # 기본(한국어) 이름은 그대로여야 한다
+          grep -qF "<string name=\"app_name\">${APP_NAME}</string>" "$RES/values/strings.xml" || { echo "::error::기본 app_name 이 ${APP_NAME} 이 아닙니다" >&2; exit 1; }
+
       - name: Inject AdMob app id + AD_ID permission into AndroidManifest
         working-directory: app/android
         env:
