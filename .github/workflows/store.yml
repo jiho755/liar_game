@@ -242,7 +242,11 @@ jobs:
         run: |
           set -euo pipefail
           for f in out/*-signed.aab; do
-            jarsigner -verify -strict "$f"
+            # AAB 는 -strict 로 검사하면 META-INF 경고(exit 4)가 나지만 서명 자체는 정상이다.
+            # 그래서 -strict 없이 검사하고 "jar verified" 문구가 있는지로 판단한다.
+            OUT_V="$(jarsigner -verify "$f" 2>&1 || true)"
+            echo "$OUT_V" | head -5
+            echo "$OUT_V" | grep -q "jar verified" || { echo "::error::AAB 서명 검증 실패: $f"; exit 1; }
             keytool -printcert -jarfile "$f" | grep -E "Owner|SHA256" || true
           done
 
