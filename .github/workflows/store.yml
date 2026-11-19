@@ -246,7 +246,7 @@ jobs:
             # 그래서 -strict 없이 검사하고 "jar verified" 문구가 있는지로 판단한다.
             OUT_V="$(jarsigner -verify "$f" 2>&1 || true)"
             echo "$OUT_V" | head -5
-            echo "$OUT_V" | grep -q "jar verified" || { echo "::error::AAB 서명 검증 실패: $f"; exit 1; }
+            grep -q "jar verified" <<<"$OUT_V" || { echo "::error::AAB 서명 검증 실패: $f"; exit 1; }
             keytool -printcert -jarfile "$f" | grep -E "Owner|SHA256" || true
           done
 
