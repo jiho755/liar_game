@@ -15,6 +15,9 @@ header{text-align:center;color:var(--cream);padding:12px 0 4px}
 header h1{margin:0;font-size:28px;line-height:1.3;text-shadow:0 2px 0 rgba(60,90,40,.35)}
 header p{margin:6px 0 0;color:var(--cream2)}
 nav{display:flex;gap:10px;justify-content:center;margin:18px 0}
+nav.langbar{position:sticky;top:0;z-index:10;margin:0;padding:8px 12px;background:var(--green);border-bottom:1.5px solid rgba(255,249,236,.35)}
+nav.langbar a{min-height:40px;padding:6px 22px}
+section{scroll-margin-top:64px}
 nav a{display:inline-block;min-height:44px;padding:9px 22px;border-radius:99px;background:var(--cream);color:var(--olive);font-weight:700;text-decoration:none;box-shadow:0 3px 0 rgba(60,90,40,.35)}
 nav a:focus-visible,.top:focus-visible{outline:3px solid #fff;outline-offset:2px}
 section{background:var(--cream);border:1.5px solid var(--line);border-radius:18px;padding:20px 20px 12px;margin:0 0 18px}
@@ -35,16 +38,15 @@ footer{text-align:center;color:var(--cream2);font-size:14px;margin-top:8px}
 </style>
 </head>
 <body>
+<nav class="langbar" aria-label="언어 선택 / Language">
+<a href="#ko">한국어</a>
+<a href="#en">English</a>
+</nav>
 <div class="wrap" id="top">
 <div class="back"><a class="backapp" href="https://jiho755.github.io/liar_game/">← 앱으로 돌아가기 · Back to the app</a></div>
 <header>
 <h1>성경 라이어<br><small style="font-size:17px;font-weight:400">개인정보처리방침 · Privacy Policy</small></h1>
 </header>
-<nav aria-label="언어 선택 / Language">
-<a href="#ko">한국어</a>
-<a href="#en">English</a>
-</nav>
-
 <section id="ko" lang="ko">
 <h2>개인정보처리방침</h2>
 <p class="date">시행일: 2026년 11월 18일</p>
