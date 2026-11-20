@@ -950,8 +950,9 @@ const app=document.getElementById('app');
 let cfg={n:5,liars:1,cat:'all',mode:'normal'};
 const maxLiars=n=>n>=10?3:n>=6?2:1;
 const gridCls=()=>cfg.n>9?'grid g4':'grid';
-try{const s=JSON.parse(localStorage.getItem('liarCfg')||'null');if(s&&s.n>=3&&s.n<=15){cfg={n:s.n|0,liars:Math.min(Math.max(s.liars|0,1),maxLiars(s.n)),cat:normCat(s.cat),mode:normMode(s.mode)};}}catch(e){}
-function save(){try{localStorage.setItem('liarCfg',JSON.stringify(cfg));}catch(e){}}
+// 게임 설정은 저장하지 않음: 앱을 다시 시작하면 항상 기본값(5명·라이어 1·전체·일반)으로 시작. 예전 버전이 남긴 저장값은 정리.
+try{localStorage.removeItem('liarCfg');}catch(e){}
+function save(){}
 const used=new Set(); // session-used words
 let g=null; // game state
 const rnd=n=>Math.floor(Math.random()*n);
