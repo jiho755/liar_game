@@ -126,7 +126,8 @@ if (html.indexOf('__LIAR_ADS__={') > html.indexOf('<script id="liar-ads">')) { c
 
 // 최종 검증
 for (const bad of ['googleapis.com', 'gstatic.com', 'jiho755.github.io']) {
-  if (html.includes(bad)) { console.error('변환 후에도 남아 있음: ' + bad); process.exit(1); }
+  // 개인정보처리방침 링크(사용자가 누를 때만 브라우저로 열림)는 허용, 그 외 jiho755.github.io 는 금지
+  if (html.split('jiho755.github.io/liar_game/privacy.html').join('').includes(bad)) { console.error('변환 후에도 남아 있음: ' + bad); process.exit(1); }
 }
 fs.writeFileSync(out, html);
 console.log('[prepare] 광고 전면 ID: ' + adId);
