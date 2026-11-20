@@ -151,12 +151,27 @@ jobs:
               if not m:
                   sys.exit('</application> 태그를 찾지 못했습니다')
               s = s[:m.end()] + '\n\n    ' + perm + s[m.end():]
+          # 개인정보처리방침 페이지의 "앱으로 돌아가기" 링크용: bibleliar://open 을 MainActivity 가 받도록 함
+          if 'android:scheme="bibleliar"' not in s:
+              m = re.search(r'</activity>', s)
+              if not m:
+                  sys.exit('</activity> 태그를 찾지 못했습니다')
+              flt = (
+                  '    <intent-filter>\n'
+                  '                <action android:name="android.intent.action.VIEW" />\n'
+                  '                <category android:name="android.intent.category.DEFAULT" />\n'
+                  '                <category android:name="android.intent.category.BROWSABLE" />\n'
+                  '                <data android:scheme="bibleliar" android:host="open" />\n'
+                  '            </intent-filter>\n\n        '
+              )
+              s = s[:m.start()] + flt + s[m.start():]
           open(p, 'w', encoding='utf-8').write(s)
           PY
           cat app/src/main/AndroidManifest.xml
           M=app/src/main/AndroidManifest.xml
           grep -qF 'android:name="com.google.android.gms.ads.APPLICATION_ID"' "$M" || { echo "::error::APPLICATION_ID meta-data 주입 실패" >&2; exit 1; }
           grep -qF "android:value=\"${ADMOB_APP_ID}\"" "$M" || { echo "::error::AdMob 앱 ID 값 확인 실패" >&2; exit 1; }
+          grep -qF 'android:scheme="bibleliar"' "$M" || { echo "::error::bibleliar 딥링크 intent-filter 주입 실패" >&2; exit 1; }
           grep -qF 'android:name="com.google.android.gms.permission.AD_ID"' "$M" || { echo "::error::AD_ID 권한 주입 실패" >&2; exit 1; }
           python3 -c "import xml.dom.minidom,sys; xml.dom.minidom.parse('$M')" || { echo "::error::AndroidManifest.xml 이 올바른 XML 이 아닙니다" >&2; exit 1; }
 

@@ -23,15 +23,20 @@ section h3{margin:22px 0 4px;font-size:18px;color:var(--olive)}
 .date{margin:0 0 8px;color:#6E7F5E;font-size:15px}
 section[lang=ko]{word-break:keep-all;overflow-wrap:break-word}
 p{margin:6px 0 10px}
+section a{overflow-wrap:anywhere}
 ul{margin:6px 0 12px;padding-left:22px}
 li{margin:4px 0}
 .hl{background:var(--cream2);border-radius:12px;padding:10px 14px;margin:10px 0}
 .top{display:block;text-align:right;margin:4px 0 8px;font-size:15px;color:var(--olive)}
+.back{display:flex;justify-content:center;margin:10px 0}
+.back a{display:inline-block;min-height:44px;padding:10px 22px;border-radius:99px;background:var(--cream);color:var(--olive);font-weight:700;text-decoration:none;text-align:center;box-shadow:0 3px 0 rgba(60,90,40,.35)}
+.back a:focus-visible{outline:3px solid #fff;outline-offset:2px}
 footer{text-align:center;color:var(--cream2);font-size:14px;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap" id="top">
+<div class="back"><a class="backapp" href="https://jiho755.github.io/liar_game/">← 앱으로 돌아가기 · Back to the app</a></div>
 <header>
 <h1>성경 라이어<br><small style="font-size:17px;font-weight:400">개인정보처리방침 · Privacy Policy</small></h1>
 </header>
@@ -129,7 +134,19 @@ footer{text-align:center;color:var(--cream2);font-size:14px;margin-top:8px}
 <a class="top" href="#top">Back to top ↑</a>
 </section>
 
+<div class="back"><a class="backapp" href="https://jiho755.github.io/liar_game/">← 앱으로 돌아가기 · Back to the app</a></div>
 <footer>성경 라이어 · Bible Liar</footer>
 </div>
+<script>
+/* 안드로이드(일반 브라우저)에서는 설치된 앱을 열고, 앱이 없거나 PC/앱 내부 화면이면 웹 게임으로 이동 */
+(function(){try{
+  var ua=navigator.userAgent||'';
+  if(/Android/i.test(ua)&&!/;\s*wv\)/.test(ua)){
+    var web='https://jiho755.github.io/liar_game/';
+    var intent='intent://open#Intent;scheme=bibleliar;package=com.jiho755.bibleliar;S.browser_fallback_url='+encodeURIComponent(web)+';end';
+    document.querySelectorAll('a.backapp').forEach(function(a){a.href=intent;});
+  }
+}catch(e){}})();
+</script>
 </body>
 </html>
