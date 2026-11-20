@@ -1152,7 +1152,7 @@ function guessScreen(){
     if(ok){b.classList.add('right');b.textContent='✓ '+opts[i];}
     else{b.classList.add('wrong');b.textContent='✗ '+opts[i];
       const k=opts.indexOf(g.word);btns[k].classList.add('right');btns[k].textContent='✓ '+opts[k];}
-    setTimeout(()=>ok?resultScreen('liar',true):resultScreen('citizen'),1200);
+    setTimeout(()=>ok?resultScreen('liar',true):resultScreen('citizen'),900);
   });
 }
 
