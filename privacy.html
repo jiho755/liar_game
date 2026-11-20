@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>개인정보처리방침 · Privacy Policy - 성경 라이어</title>
+<title>개인정보처리방침 - 성경 라이어</title>
 <meta name="description" content="성경 라이어(Bible Liar) 개인정보처리방침 / Privacy Policy">
 <style>
 :root{--green:#6F9650;--olive:#4A6A34;--cream:#FFF9EC;--cream2:#E6F0D8;--ink:#3E5A2C;--line:#E6DCC4}
@@ -14,9 +14,7 @@ body{margin:0;background:var(--green);color:var(--ink);font-family:-apple-system
 header{text-align:center;color:var(--cream);padding:12px 0 4px}
 header h1{margin:0;font-size:28px;line-height:1.3;text-shadow:0 2px 0 rgba(60,90,40,.35)}
 header p{margin:6px 0 0;color:var(--cream2)}
-nav{display:flex;gap:10px;justify-content:center;margin:18px 0}
-nav a{display:inline-block;min-height:44px;padding:9px 22px;border-radius:99px;background:var(--cream);color:var(--olive);font-weight:700;text-decoration:none;box-shadow:0 3px 0 rgba(60,90,40,.35)}
-nav a:focus-visible,.top:focus-visible{outline:3px solid #fff;outline-offset:2px}
+a:focus-visible,button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 section{background:var(--cream);border:1.5px solid var(--line);border-radius:18px;padding:20px 20px 12px;margin:0 0 18px}
 section h2{margin:0 0 4px;font-size:22px;color:var(--olive)}
 section h3{margin:22px 0 4px;font-size:18px;color:var(--olive)}
@@ -28,24 +26,27 @@ ul{margin:6px 0 12px;padding-left:22px}
 li{margin:4px 0}
 .hl{background:var(--cream2);border-radius:12px;padding:10px 14px;margin:10px 0}
 .top{display:block;text-align:right;margin:4px 0 8px;font-size:15px;color:var(--olive)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 6px}
+.lang{display:inline-flex;margin-left:auto;padding:3px;border-radius:99px;background:rgba(255,255,255,.22)}
+.lang button{min-height:40px;padding:6px 16px;border:0;border-radius:99px;background:transparent;color:var(--cream);font:inherit;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lang button[aria-pressed=true]{background:var(--cream);color:var(--olive);box-shadow:0 2px 0 rgba(60,90,40,.35)}
+body[data-lang=ko] .l-en,body[data-lang=en] .l-ko{display:none}
+body[data-lang=ko] #sec-en,body[data-lang=en] #sec-ko{display:none}
 .back{display:flex;justify-content:center;margin:10px 0}
-.back a{display:inline-block;min-height:44px;padding:10px 22px;border-radius:99px;background:var(--cream);color:var(--olive);font-weight:700;text-decoration:none;text-align:center;box-shadow:0 3px 0 rgba(60,90,40,.35)}
-.back a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.backbtn{display:inline-block;min-height:44px;padding:10px 22px;border-radius:99px;background:var(--cream);color:var(--olive);font-weight:700;text-decoration:none;text-align:center;box-shadow:0 3px 0 rgba(60,90,40,.35)}
 footer{text-align:center;color:var(--cream2);font-size:14px;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap" id="top">
-<div class="back"><a class="backapp" href="https://jiho755.github.io/liar_game/">← 앱으로 돌아가기 · Back to the app</a></div>
+<div class="bar">
+<a class="backbtn backapp" href="https://jiho755.github.io/liar_game/"><span class="l-ko">← 앱으로 돌아가기</span><span class="l-en">← Back to the app</span></a>
+<div class="lang" role="group" aria-label="언어 선택 / Language"><button type="button" data-l="ko" aria-pressed="true">한국어</button><button type="button" data-l="en" aria-pressed="false">English</button></div>
+</div>
 <header>
-<h1>성경 라이어<br><small style="font-size:17px;font-weight:400">개인정보처리방침 · Privacy Policy</small></h1>
+<h1>성경 라이어<br><small style="font-size:17px;font-weight:400"><span class="l-ko">개인정보처리방침</span><span class="l-en">Privacy Policy</span></small></h1>
 </header>
-<nav aria-label="언어 선택 / Language">
-<a href="#ko">한국어</a>
-<a href="#en">English</a>
-</nav>
-
-<section id="ko" lang="ko">
+<section id="sec-ko" lang="ko">
 <h2>개인정보처리방침</h2>
 <p class="date">시행일: 2026년 11월 18일</p>
 <p>「성경 라이어」(이하 "앱")는 폰 한 대를 돌려가며 즐기는 성경 라이어 게임입니다. 게임 자체는 여러분의 개인정보를 수집하지 않아요. 다만 <b>Android 앱 버전</b>에는 Google AdMob 광고가 포함되어 있으며, 이에 대해서는 아래 4항에서 안내해요. 웹 버전에는 광고가 없어요.</p>
@@ -90,7 +91,7 @@ footer{text-align:center;color:var(--cream2);font-size:14px;margin-top:8px}
 <a class="top" href="#top">맨 위로 ↑</a>
 </section>
 
-<section id="en" lang="en">
+<section id="sec-en" lang="en">
 <h2>Privacy Policy</h2>
 <p class="date">Effective date: November 18, 2026</p>
 <p>"Bible Liar" (성경 라이어, the "App") is a pass-one-phone party game. The game itself does not collect your personal information. However, the <b>Android app version</b> includes Google AdMob ads, described in section 4 below. The web version has no ads.</p>
@@ -134,19 +135,43 @@ footer{text-align:center;color:var(--cream2);font-size:14px;margin-top:8px}
 <a class="top" href="#top">Back to top ↑</a>
 </section>
 
-<div class="back"><a class="backapp" href="https://jiho755.github.io/liar_game/">← 앱으로 돌아가기 · Back to the app</a></div>
+<div class="back"><a class="backbtn backapp" href="https://jiho755.github.io/liar_game/"><span class="l-ko">← 앱으로 돌아가기</span><span class="l-en">← Back to the app</span></a></div>
 <footer>성경 라이어 · Bible Liar</footer>
 </div>
 <script>
-/* 안드로이드(일반 브라우저)에서는 설치된 앱을 열고, 앱이 없거나 PC/앱 내부 화면이면 웹 게임으로 이동 */
-(function(){try{
-  var ua=navigator.userAgent||'';
-  if(/Android/i.test(ua)&&!/;\s*wv\)/.test(ua)){
-    var web='https://jiho755.github.io/liar_game/';
-    var intent='intent://open#Intent;scheme=bibleliar;package=com.jiho755.bibleliar;S.browser_fallback_url='+encodeURIComponent(web)+';end';
-    document.querySelectorAll('a.backapp').forEach(function(a){a.href=intent;});
+(function(){
+  var TITLE={ko:'개인정보처리방침 - 성경 라이어',en:'Privacy Policy - Bible Liar'};
+  var btns=[].slice.call(document.querySelectorAll('.lang button'));
+  function initial(){
+    var h=location.hash;
+    if(h==='#en')return 'en'; if(h==='#ko')return 'ko';   /* 앱이 선택한 언어로 열기 */
+    try{var v=localStorage.getItem('privLang');if(v==='ko'||v==='en')return v;}catch(e){}
+    return /^ko/i.test(navigator.language||'')?'ko':'en';
   }
-}catch(e){}})();
+  function setLang(l,fromUser){
+    document.body.setAttribute('data-lang',l);
+    document.documentElement.lang=l;
+    document.title=TITLE[l];
+    btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-l')===l?'true':'false');});
+    if(fromUser){
+      try{localStorage.setItem('privLang',l);}catch(e){}
+      try{history.replaceState(null,'','#'+l);}catch(e){}
+      window.scrollTo(0,0);
+    }
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-l'),true);});});
+  window.addEventListener('hashchange',function(){var h=location.hash;if(h==='#ko'||h==='#en')setLang(h.slice(1),false);});
+  setLang(initial(),false);
+  /* "앱으로 돌아가기": 안드로이드 일반 브라우저에서는 설치된 앱을 열고(앱이 없으면 웹 게임), 그 외에는 웹 게임으로 이동 */
+  try{
+    var ua=navigator.userAgent||'';
+    if(/Android/i.test(ua)&&!/;\s*wv\)/.test(ua)){
+      var web='https://jiho755.github.io/liar_game/';
+      var intent='intent://open#Intent;scheme=bibleliar;package=com.jiho755.bibleliar;S.browser_fallback_url='+encodeURIComponent(web)+';end';
+      document.querySelectorAll('a.backapp').forEach(function(a){a.href=intent;});
+    }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
