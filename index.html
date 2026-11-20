@@ -103,13 +103,15 @@ details ol{margin:4px 0 0;padding-left:22px;font-size:17px}
 #landing .lt2{font-size:clamp(15px,4.3vw,19px);color:#E6F0D8;margin-top:8px}
 #landing .lb{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + clamp(48px,9vh,84px));width:min(calc(100% - 100px),320px);min-height:52px;border:0;border-radius:99px;background:#FFF9EC;color:#4A6A34;font-family:inherit;font-size:clamp(18px,5vw,21px);padding:12px;cursor:pointer;box-shadow:0 3px 0 rgba(60,90,40,.35)}
 #landing .lb:active{transform:translateX(-50%) translateY(1px)}
+#landing .lp{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 4px);min-height:40px;display:flex;align-items:center;padding:0 14px;font-family:inherit;font-size:14px;color:#E6F0D8;text-decoration:underline;text-underline-offset:3px;opacity:.9;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+#landing .lp:active{opacity:.6}
 @keyframes lfDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
 @keyframes lfIn{from{opacity:0}to{opacity:1}}
 @keyframes lfBtn{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%)}}
 #landing .lt{animation:lfDown .9s ease-out .15s backwards}
 #landing .lsheep{animation:lfIn 1.1s ease-out .7s backwards}
-#landing .lb{animation:lfBtn .8s ease-out 1.5s backwards}
-@media (prefers-reduced-motion:reduce){#landing .lt,#landing .lsheep,#landing .lb{animation:none}}
+#landing .lb,#landing .lp{animation:lfBtn .8s ease-out 1.5s backwards}
+@media (prefers-reduced-motion:reduce){#landing .lt,#landing .lsheep,#landing .lb,#landing .lp{animation:none}}
 #sndbtn{position:fixed;z-index:9;top:calc(env(safe-area-inset-top) + 8px);right:calc(env(safe-area-inset-right) + 8px);width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border-radius:50%;background:rgba(74,106,52,.55);border:1.5px solid rgba(255,249,236,.35);display:flex;align-items:center;justify-content:center}
 #sndbtn svg{display:block}
 #sndbtn:active{transform:scale(.94)}
@@ -839,7 +841,7 @@ const AD=window.LiarAds||{finished(){},gate(n){return n();}}; // 광고 모듈�
 const I18N={
 ko:{
  'title':'성경 라이어 게임','sound':'소리 켜기/끄기','lang.group':'언어 선택',
- 'land.t1':'성경 라이어','land.t2':'우리 중에 검은 양이 있다','land.start':'게임 시작','land.aria':'풀밭의 양 떼 애니메이션',
+ 'land.t1':'성경 라이어','land.t2':'우리 중에 검은 양이 있다','land.start':'게임 시작','land.priv':'개인정보처리방침','land.aria':'풀밭의 양 떼 애니메이션',
  'setup.title':'📖 성경 라이어 게임','setup.sub':'폰 한 대로 함께 즐기는 말씀 게임',
  'setup.players':'인원 수','players.n':'{n}명',
  'setup.liars':'라이어 수','setup.liarsNote':'(2명은 6인 이상, 3명은 10인 이상)','liars.chip':'{c}명',
@@ -873,7 +875,7 @@ ko:{
 },
 en:{
  'title':'Bible Liar','sound':'Toggle sound','lang.group':'Language',
- 'land.t1':'Bible Liar','land.t2':'There’s a black sheep among us','land.start':'Start Game','land.aria':'Animation of a flock of sheep in a meadow',
+ 'land.t1':'Bible Liar','land.t2':'There’s a black sheep among us','land.start':'Start Game','land.priv':'Privacy Policy','land.aria':'Animation of a flock of sheep in a meadow',
  'setup.title':'📖 Bible Liar','setup.sub':'A Bible party game on one phone',
  'setup.players':'Players','players.n':'{n}',
  'setup.liars':'Liars','setup.liarsNote':'(2 liars need 6+ players, 3 need 10+)','liars.chip':'{c}',
@@ -1209,13 +1211,14 @@ function paintLanding(){
   landingEl.querySelector('.lt1').textContent=t('land.t1');
   landingEl.querySelector('.lt2').textContent=t('land.t2');
   landingEl.querySelector('#lstart').textContent=t('land.start');
+  const lp=landingEl.querySelector('#lpriv');if(lp){lp.textContent=t('land.priv');lp.href='https://jiho755.github.io/liar_game/privacy.html#'+(LANG==='ko'?'ko':'en');}
 }
 function landingScreen(){
   A.scene('landing');
   document.body.dataset.scr='landing';
   const NS='http://www.w3.org/2000/svg';
   landingEl=document.createElement('div');landingEl.id='landing';
-  landingEl.innerHTML='<svg id="lsv" viewBox="0 0 300 520" preserveAspectRatio="xMidYMax slice" role="img" aria-label="'+t('land.aria')+'"></svg><div class="lt"><div class="lt1">'+t('land.t1')+'</div><div class="lt2">'+t('land.t2')+'</div></div><button class="lb" id="lstart">'+t('land.start')+'</button>';
+  landingEl.innerHTML='<svg id="lsv" viewBox="0 0 300 520" preserveAspectRatio="xMidYMax slice" role="img" aria-label="'+t('land.aria')+'"></svg><div class="lt"><div class="lt1">'+t('land.t1')+'</div><div class="lt2">'+t('land.t2')+'</div></div><button class="lb" id="lstart">'+t('land.start')+'</button><a class="lp" id="lpriv" target="_blank" rel="noopener" href="https://jiho755.github.io/liar_game/privacy.html#'+(LANG==='ko'?'ko':'en')+'">'+t('land.priv')+'</a>';
   document.body.appendChild(landingEl);
   const sv=landingEl.querySelector('#lsv');
   let sd=5;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
